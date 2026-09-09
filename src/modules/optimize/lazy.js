@@ -1,7 +1,22 @@
+// --------------------------------------------------
+// IMPORTS
+// --------------------------------------------------
+
 import { createObserver } from './observer.js'
+
 import { loadJS } from './assets.js'
 
+// --------------------------------------------------
+// ENVIRONMENT
+// --------------------------------------------------
+
 const isBrowser = typeof window !== 'undefined'
+
+const isDOM = isBrowser && typeof document !== 'undefined'
+
+// --------------------------------------------------
+// OBSERVER
+// --------------------------------------------------
 
 let observer = null
 
@@ -10,37 +25,31 @@ let observer = null
 // --------------------------------------------------
 
 export function initLazyLoad() {
-  if (!isBrowser) return
-
-  if (!observer) {
-    observer = createObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue
-
-        const el = entry.target
-
-        for (const cls of el.classList) {
-          if (!cls.includes('-')) continue
-
-          const [category, name] = cls.split('-')
-
-          const base = `/${category}/${name}`
-
-          import(`./${base}/index.js`)
-            .then((m) => m.init?.(el))
-            .catch(() => {})
-        }
-
-        observer.unobserve(el)
-      }
-    })
+  if (!isDOM) {
+    return
   }
 
-  if (!observer) return
+  // ----------------------------------------------
+  // CREATE OBSERVER
+  // ----------------------------------------------
+
+  if (!observer) {
+    observer = createObserver()
+  }
+
+  if (!observer) {
+    return
+  }
+
+  // ----------------------------------------------
+  // OBSERVE ELEMENTS
+  // ----------------------------------------------
 
   document
     .querySelectorAll("[class*='-'], [data-lazy]")
-    .forEach((el) => observer.observe(el))
+    .forEach((el) => {
+      observer.observe(el)
+    })
 }
 
 // --------------------------------------------------
@@ -48,17 +57,63 @@ export function initLazyLoad() {
 // --------------------------------------------------
 
 export function lazyLoadRoute() {
-  if (!isBrowser) return
+  if (!isDOM) {
+    return
+  }
+
+  // ----------------------------------------------
+  // DATA-LAZY MODULES
+  // ----------------------------------------------
 
   document.querySelectorAll('[data-lazy]').forEach((el) => {
-    import(el.dataset.lazy)
-      .then((m) => m.init?.(el))
-      .catch(() => {})
+    const path = el.dataset?.lazy
+
+    if (!path) {
+      return
+    }
+
+    import(path)
+      .then((module) => {
+        if (module && typeof module.init === 'function') {
+          return module.init(el)
+        }
+      })
+      .catch((error) => {
+        console.warn(
+          `[NEXO] Falha ao carregar módulo lazy "${path}".`,
+          error
+        )
+      })
   })
+
+  // ----------------------------------------------
+  // MODULE SCRIPTS
+  // ----------------------------------------------
 
   document
     .querySelectorAll(
       "script[type='module'][src$='script.js']"
     )
-    .forEach((s) => loadJS(s.src).catch(() => {}))
+    .forEach((script) => {
+      loadJS(script.src).catch((error) => {
+        console.warn(
+          `[NEXO] Falha ao carregar script lazy "${script.src}".`,
+          error
+        )
+      })
+    })
+}
+
+// --------------------------------------------------
+// RESET OBSERVER
+// --------------------------------------------------
+
+export function resetLazyLoad() {
+  if (!observer) {
+    return
+  }
+
+  observer.disconnect()
+
+  observer = null
 }

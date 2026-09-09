@@ -1,0 +1,56 @@
+loadLayouts()
+
+Carrega um componente HTML dentro de um elemento.
+
+<div id="header"></div>
+loadLayouts('header', document.querySelector('#header'))
+
+Procura:
+
+../components/layouts/header.html
+data-component
+
+Permite carregar componentes automaticamente.
+
+<div data-component="header"></div>
+
+O loadAllComponents() encontra esse elemento e carrega header.html.
+
+data-props
+
+Envia dados para o componente.
+
+<div
+  data-component="header"
+  data-props='{"title":"Meu Site"}'
+></div>
+
+No header.html:
+
+<h1>{{ title }}</h1>
+
+Resultado:
+
+<h1>Meu Site</h1>
+loadAllComponents()
+
+Procura todos os elementos com data-component e carrega automaticamente.
+
+loadAllComponents()
+
+Exemplo:
+
+<div data-component="header"></div>
+<div data-component="footer"></div>
+
+Carrega:
+
+header.html
+footer.html
+spa:pageLoaded
+
+Quando seu SPA trocar de página, o evento pode disparar novamente o carregamento:
+
+document.dispatchEvent(new Event('spa:pageLoaded'))
+
+Assim, os novos componentes da página são carregados automaticamente.

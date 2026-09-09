@@ -1,25 +1,187 @@
+// --------------------------------------------------
+// IMPORTS
+// --------------------------------------------------
+
 import { loadPage } from './loader.js'
+
 import { handleNavigation } from './navigation.js'
-export function createRouter({ childrens, config, root }) {
-  function resolveRoute() {
+
+// --------------------------------------------------
+// CREATE ROUTER
+// --------------------------------------------------
+
+export function createRouter({
+  childrens = [],
+  config = {},
+  root,
+  client,
+}) {
+  // ------------------------------------------------
+  // RESOLVE ROUTE
+  // ------------------------------------------------
+
+  async function resolveRoute() {
+    if (typeof window === 'undefined' || !window.location) {
+      return
+    }
+
+    if (!root) {
+      console.error(
+        '[SPA] Root da aplicação não encontrado.'
+      )
+
+      return
+    }
+
+    if (!client) {
+      console.error(
+        '[SPA] Cliente da aplicação não informado.'
+      )
+
+      return
+    }
+
+    // ----------------------------------------------
+    // HASH
+    // ----------------------------------------------
+
     let hash = window.location.hash
+
+    // ----------------------------------------------
+    // INITIAL ROUTE
+    // ----------------------------------------------
+
     if (!hash) {
-      window.location.replace(`#${config.pageInit}`)
+      const initial = config?.pageInit || '/home'
+
+      const normalized = initial.startsWith('/')
+        ? initial
+        : `/${initial}`
+
+      hash = `#${normalized}`
+
+      // --------------------------------------------
+      // DEFINE HASH SEM RECARREGAR A PÁGINA
+      // --------------------------------------------
+
+      window.history.replaceState(null, '', hash)
+    }
+
+    // ----------------------------------------------
+    // INVALID HASH
+    // ----------------------------------------------
+
+    if (!hash.startsWith('#/')) {
       return
     }
-    if (!hash.startsWith('#/')) return
+
+    // ----------------------------------------------
+    // PATH
+    // ----------------------------------------------
+
     const path = hash.slice(1)
-    const children = childrens.find((r) => r.path.test(path))
+
+    // ----------------------------------------------
+    // FIND ROUTE
+    // ----------------------------------------------
+
+    const children = childrens.find((route) => {
+      if (!route?.path) {
+        return false
+      }
+
+      return route.path.test(path)
+    })
+
+    // ----------------------------------------------
+    // NOT FOUND
+    // ----------------------------------------------
+
     if (!children) {
-      root.innerHTML = '<p>Página não encontrada.</p>'
+      root.innerHTML = `
+        <p>Página não encontrada.</p>
+      `
+
+      console.warn(`[SPA] Rota não encontrada: ${path}`)
+
       return
     }
-    loadPage(children.page, root)
+
+    // ----------------------------------------------
+    // VALIDATE PAGE
+    // ----------------------------------------------
+
+    if (!children.page) {
+      console.error(
+        `[SPA] A rota "${path}" não possui uma página definida.`
+      )
+
+      root.innerHTML = `
+        <p>Erro: página da rota não definida.</p>
+      `
+
+      return
+    }
+
+    // ----------------------------------------------
+    // LOAD PAGE
+    // ----------------------------------------------
+
+    try {
+      await loadPage({
+        pagePath: children.page,
+
+        root,
+
+        client,
+      })
+    } catch (error) {
+      console.error('[SPA] Erro ao carregar página:', error)
+    }
   }
+
+  // ------------------------------------------------
+  // INIT
+  // ------------------------------------------------
+
   function init() {
+    // ----------------------------------------------
+    // VALIDATE
+    // ----------------------------------------------
+
+    if (
+      typeof window === 'undefined' ||
+      typeof document === 'undefined'
+    ) {
+      return
+    }
+
+    // ----------------------------------------------
+    // NAVIGATION HANDLER
+    // ----------------------------------------------
+
     handleNavigation(resolveRoute)
+
+    // ----------------------------------------------
+    // HASH CHANGE
+    // ----------------------------------------------
+
     window.addEventListener('hashchange', resolveRoute)
+
+    // ----------------------------------------------
+    // INITIAL ROUTE
+    // ----------------------------------------------
+
     resolveRoute()
   }
-  return { init }
+
+  // ------------------------------------------------
+  // API
+  // ------------------------------------------------
+
+  return {
+    init,
+
+    resolveRoute,
+  }
 }

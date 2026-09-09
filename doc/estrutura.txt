@@ -1,0 +1,109 @@
+nexo_teste/
+├── client/
+│   │── global.css
+│   │── main.js
+│   │── @cliente1/
+│   │    │── constant/
+│   │    │     ├── images/
+│   │    │     └── icons/
+│   │    │
+│   │    │── css/
+│   │    │     ├── index.css
+│   │    │     └── custom.css
+│   │    │
+│   │    │── pages/
+│   │    │      ├── home.html
+│   │    │      ├── about.html
+│   │    │      ├── work.html
+│   │    │      ├── hobby.html
+│   │    │      └── gallery.html
+│   │    │
+│   │    │── index.html
+│   │    └─── index.js
+│   └── @cliente2/
+│        │── constant/
+│        │     ├── images/
+│        │     └── icons/
+│        │
+│        │── css/
+│        │     ├── index.css
+│        │     └── custom.css
+│        │
+│        │── pages/
+│        │      ├── home.html
+│        │      ├── about.html
+│        │      ├── work.html
+│        │      ├── hobby.html
+│        │      └── gallery.html
+│        │
+│        ├── index.html
+│        └─── index.js
+│
+│
+├── src/
+│   ├── components/
+│   └── modules/
+├── .env.local
+├── .gitignore
+├── index.html
+├── server.js
+├── package-lock.json
+├── package.json
+├── vercel.json
+└─── README.md
+
+
+==================================================================================================================
+
+nexo_teste/
+├── client/
+│   │── index.html    -> index principal dos clientes
+│   │── global.css
+│   │── main.js
+│   │── @cliente1/
+│   │    │── constant/
+│   │    │     ├── images/
+│   │    │     └── icons/
+│   │    │
+│   │    │── css/
+│   │    │     ├── index.css
+│   │    │     └── custom.css
+│   │    │
+│   │    │── pages/
+│   │    │      ├── home.html
+│   │    │      ├── about.html
+│   │    │      ├── work.html
+│   │    │      ├── hobby.html
+│   │    │      └── gallery.html
+│   │    │
+│   │    └─── index.json -> onde vai ter os caminhos e configurações
+│   └── @cliente2/
+│        │── constant/
+│        │     ├── images/
+│        │     └── icons/
+│        │
+│        │── css/
+│        │     ├── index.css
+│        │     └── custom.css
+│        │
+│        │── pages/
+│        │      ├── home.html
+│        │      ├── about.html
+│        │      ├── work.html
+│        │      ├── hobby.html
+│        │      └── gallery.html
+│        │
+│        └─── index.json -> onde vai ter os caminhos e configurações
+│
+│
+├── src/
+│   ├── components/
+│   └── modules/
+├── .env.local
+├── .gitignore
+├── index.html    -> index principal do nexo
+├── server.js
+├── package-lock.json
+├── package.json
+├── vercel.json
+└─── README.md

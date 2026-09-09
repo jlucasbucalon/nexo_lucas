@@ -1,0 +1,316 @@
+{
+  "config": {
+    "pageInit": "/home"
+  },
+
+  "pages": [
+    {
+      "path": "/home",
+      "page": "/pages/home"
+    },
+    {
+      "path": "/about",
+      "page": "/pages/about"
+    },
+    {
+      "path": "/work",
+      "page": "/pages/work"
+    },
+    {
+      "path": "/hobby",
+      "page": "/pages/hobby"
+    },
+    {
+      "path": "/gallery",
+      "page": "/pages/gallery"
+    }
+  ],
+
+  "animations": {
+    "scroll": {
+      "enabled": true,
+      "mode": "smooth",
+      "custom": {
+        "ease": 0.4,
+        "stepMin": 1,
+        "stepMax": 60
+      }
+    },
+
+    "fade": {
+      "enabled": true,
+      "duration": 300,
+      "useTranslate": true,
+      "translateValue": "5px"
+    }
+  },
+
+  "assets": {
+    "images": {
+      "foto": {
+        "src": "perfil.png",
+        "dark": "perfil.png",
+        "set": {
+          "src": "perfil.png",
+          "dark": "perfil.png",
+          "maxWidth": 768
+        }
+      }
+    },
+
+    "icons": {
+      "sun": {
+        "src": "sun.svg"
+      },
+
+      "moon": {
+        "src": "moon.svg"
+      },
+
+      "home": {
+        "src": "home.svg"
+      },
+
+      "about": {
+        "src": "about.svg"
+      },
+
+      "work": {
+        "src": "work.svg"
+      },
+
+      "hobby": {
+        "src": "hooby.svg"
+      },
+
+      "gallery": {
+        "src": "gallery.svg"
+      },
+
+      "footer": {
+        "src": "footer.svg"
+      },
+
+      "header": {
+        "src": "header.svg"
+      },
+
+      "facebook": {
+        "src": "facebook.svg"
+      },
+
+      "instagram": {
+        "src": "instagram.svg"
+      },
+
+      "linkedin": {
+        "src": "linkedin.svg"
+      },
+
+      "whatsapp": {
+        "src": "whatsapp.svg"
+      },
+
+      "github": {
+        "src": "github.svg"
+      },
+
+      "email": {
+        "src": "email.svg"
+      },
+
+      "tiktok": {
+        "src": "tiktok.svg"
+      },
+
+      "delete": {
+        "src": "delete.svg"
+      },
+
+      "menu": {
+        "src": "menu.svg"
+      }
+    }
+  },
+
+  "profile": {
+    "component": "Hero",
+
+    "props": {
+      "imageHero": "foto"
+    },
+
+    "appearance": {
+      "light": {},
+
+      "dark": {}
+    }
+  },
+
+  "title": {
+    "component": "Title",
+
+    "props": {
+      "nameTitle": "Modelo Padrão",
+      "userTitle": "@modelopadrão"
+    },
+
+    "appearance": {
+      "light": {},
+
+      "dark": {}
+    }
+  },
+
+  "navbar": {
+    "component": "Navbar",
+
+    "props": {
+      "effect": "effect-ripple",
+      "scroll": "return",
+
+      "mobile": {
+        "openMenu": "menu",
+        "closeMenu": "delete"
+      },
+
+      "items": [
+        {
+          "type": "link",
+          "href": "#/home",
+          "tooltip": "Home",
+          "icon": "home",
+          "navigation": "page"
+        },
+
+        {
+          "type": "link",
+          "href": "#/about",
+          "tooltip": "Sobre",
+          "icon": "about",
+          "navigation": "page"
+        },
+
+        {
+          "type": "link",
+          "href": "#/work",
+          "tooltip": "Trabalhos",
+          "icon": "work",
+          "navigation": "page"
+        },
+
+        {
+          "type": "theme",
+          "style": "button-theme",
+          "iconSun": "sun",
+          "iconMoon": "moon",
+          "tooltip": "Trocar de Tema"
+        },
+
+        {
+          "type": "link",
+          "href": "#/hobby",
+          "tooltip": "Hobbies",
+          "icon": "hobby",
+          "navigation": "page"
+        },
+
+        {
+          "type": "link",
+          "href": "#/gallery",
+          "tooltip": "Galeria",
+          "icon": "gallery",
+          "navigation": "page"
+        },
+
+        {
+          "type": "scroll",
+          "hrefDown": "#footer",
+          "hrefUp": "#header",
+          "tooltipDown": "Rodapé",
+          "tooltipUp": "Subir",
+          "iconDown": "footer",
+          "iconUp": "header",
+          "navigation": "move"
+        }
+      ]
+    },
+
+    "appearance": {
+      "light": {
+        "boxNavbar-backgroundColor": "yellow"
+      },
+
+      "dark": {
+        "boxNavbar-backgroundColor": "blue"
+      }
+    }
+  },
+
+  "footer": {
+    "component": "Footer",
+
+    "props": {
+      "items": [
+        {
+          "type": "link",
+          "href": "https://instagram.com",
+          "target": "_blank",
+          "tooltip": "Instagram",
+          "icon": "instagram"
+        },
+
+        {
+          "type": "link",
+          "href": "https://facebook.com",
+          "target": "_blank",
+          "tooltip": "Facebook",
+          "icon": "facebook"
+        },
+
+        {
+          "type": "link",
+          "href": "https://linkedin.com",
+          "target": "_blank",
+          "tooltip": "LinkedIn",
+          "icon": "linkedin"
+        },
+
+        {
+          "type": "link",
+          "href": "https://github.com",
+          "target": "_blank",
+          "tooltip": "GitHub",
+          "icon": "github"
+        },
+
+        {
+          "type": "link",
+          "href": "https://email.com",
+          "target": "_blank",
+          "tooltip": "Email",
+          "icon": "email"
+        },
+
+        {
+          "type": "link",
+          "href": "https://whatsapp.com",
+          "target": "_blank",
+          "tooltip": "WhatsApp",
+          "icon": "whatsapp"
+        }
+      ],
+
+      "copy": [
+        "© 2026 Minha Empresa",
+        " - Todos os direitos reservados"
+      ]
+    },
+
+    "appearance": {
+      "light": {},
+
+      "dark": {}
+    }
+  }
+}

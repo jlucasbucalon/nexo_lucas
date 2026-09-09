@@ -1,0 +1,1715 @@
+<style>
+  :root {
+    /* NAVBAR */
+
+    --boxNavbar-backgroundColor: #fff;
+    --boxNavbar-radius: 0;
+    --boxNavbar-margin: 0;
+    --boxNavbar-border: none;
+    --boxNavbar-padding: 12px 0;
+    --boxNavbar-boxShadow: none;
+
+    /* LINK */
+
+    --aNavbar-padding: 8px;
+    --aNavbar-hover: #696969;
+
+    /* ICON */
+
+    --iconNavbar-width: 2.5rem;
+    --iconNavbar-height: 2.5rem;
+    --iconNavbar-color: #000;
+
+    /* RETURN */
+
+    --return-backgroundColor: #000;
+    --return-color: #fff;
+    --return-backgroundHover: #fff;
+    --return-hover: #000;
+    --return-right: 20%;
+    --return-bottom: 10%;
+
+    /* FIXED */
+
+    --navbar-fixed-top: 0;
+    --navbar-fixed-zIndex: 10;
+    --brColor-fixed: #fff;
+
+    /* MOBILE */
+
+    --mobile-navbar-padding: 8px 5%;
+    --mobile-navbar-gap: 20px;
+
+    --mobile-menu-backgroundColor: var(
+      --boxNavbar-backgroundColor
+    );
+
+    --mobile-menu-padding: 10px 5%;
+    --mobile-menu-border: none;
+    --mobile-menu-item-padding: 12px 8px;
+    --mobile-menu-hover: var(--aNavbar-hover);
+
+    /* MOBILE MENU TRANSITION */
+
+    --mobile-menu-transition-duration: 0.3s;
+
+    --mobile-menu-transition:
+      max-height var(--mobile-menu-transition-duration) ease,
+      opacity var(--mobile-menu-transition-duration) ease,
+      transform var(--mobile-menu-transition-duration) ease;
+  }
+
+  html[data-theme='dark'] {
+    --boxNavbar-backgroundColor: #000;
+    --aNavbar-hover: #696969;
+    --iconNavbar-color: #fff;
+    --brColor-fixed: #000;
+
+    --return-backgroundColor: #fff;
+    --return-color: #000;
+    --return-backgroundHover: #000;
+    --return-hover: #fff;
+  }
+
+  .navbar_wrapper {
+    width: 100%;
+  }
+
+  .navbar_fixed_sentinel {
+    width: 100%;
+    height: 1px;
+  }
+
+  .navbar_box {
+    background-color: var(--boxNavbar-backgroundColor);
+    border-radius: var(--boxNavbar-radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: var(--boxNavbar-padding);
+    margin: var(--boxNavbar-margin);
+    border: var(--boxNavbar-border);
+    box-shadow: var(--boxNavbar-boxShadow);
+  }
+
+  .navbar_box.navbar_fixed {
+    position: fixed;
+    top: var(--navbar-fixed-top);
+    width: 60%;
+    padding: 2px 0;
+    border-radius: 0 0 var(--boxNavbar-radius)
+      var(--boxNavbar-radius);
+    z-index: var(--navbar-fixed-zIndex);
+    background-color: var(--brColor-fixed);
+  }
+
+  .navbar_wrapper.navbar_is_fixed {
+    min-height: var(--navbar-height);
+  }
+
+  .navbar_box a {
+    padding: var(--aNavbar-padding);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar_box a my-icon {
+    width: var(--iconNavbar-width);
+    height: var(--iconNavbar-height);
+    color: var(--iconNavbar-color);
+  }
+
+  .navbar_box a:hover my-icon {
+    color: var(--aNavbar-hover);
+  }
+
+  .navbar_box a.active my-icon {
+    color: var(--aNavbar-hover);
+  }
+
+  .navbar_box button {
+    border: none;
+    background: transparent;
+    padding: 0;
+  }
+
+  .navbar_items {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  .return {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--return-backgroundColor);
+    color: var(--return-color);
+    z-index: 11;
+    border-radius: var(--aFooter-borderRadius);
+    padding: 10px;
+    box-shadow: var(--aFooter-boxShadow);
+    position: fixed;
+    right: var(--return-right);
+    bottom: var(--return-bottom);
+  }
+
+  .return my-icon {
+    color: var(--return-color);
+    width: var(--iconNavbar-width);
+    height: var(--iconNavbar-height);
+  }
+
+  .return.active {
+    display: flex;
+  }
+
+  .navbar_box a.scroll_return my-icon {
+    color: var(--iconNavbar-color);
+  }
+
+  .navbar_box a,
+  .navbar_box button {
+    --tooltip-position: var(--tooltip-top);
+
+    --tooltip-arrow-position: var(--tooltip-arrow-bottom);
+  }
+
+  .navbar_box.navbar_fixed a,
+  .navbar_box.navbar_fixed button {
+    --tooltip-position: var(--tooltip-bottom);
+    --tooltip-arrow-position: var(--tooltip-arrow-top);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .return:hover my-icon {
+      color: var(--return-hover);
+    }
+
+    .return:hover {
+      transform: scale(1.08) translate3d(0, 0, 0);
+      background-color: var(--return-backgroundHover);
+    }
+
+    .navbar_box a.scroll_return:hover my-icon {
+      color: var(--aNavbar-hover);
+    }
+  }
+
+  .navbar_box_mobile {
+    display: none;
+    flex-wrap: wrap;
+  }
+
+  .navbar_mobile_main {
+    width: 100%;
+
+    display: flex;
+    padding: var(--mobile-navbar-padding);
+    background-color: var(--boxNavbar-backgroundColor);
+    border-radius: var(--boxNavbar-radius);
+    border: var(--boxNavbar-border);
+    box-shadow: var(--boxNavbar-boxShadow);
+  }
+
+  .navbar_items_mobile {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: var(--mobile-navbar-gap);
+  }
+
+  .navbar_items_mobile > li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar_mobile_main button {
+    border: none;
+    background: transparent;
+    padding: var(--aNavbar-padding);
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar_mobile_main button my-icon {
+    width: var(--iconNavbar-width);
+    height: var(--iconNavbar-height);
+    color: var(--iconNavbar-color);
+  }
+
+  .navbar_mobile_main a {
+    padding: var(--aNavbar-padding);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar_mobile_main a my-icon {
+    width: var(--iconNavbar-width);
+    height: var(--iconNavbar-height);
+    color: var(--iconNavbar-color);
+  }
+
+  .navbar_mobile_menu {
+    width: 100%;
+    margin: 0;
+    background-color: var(--mobile-menu-backgroundColor);
+    border: var(--mobile-menu-border);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: var(--mobile-menu-transition);
+  }
+
+  .navbar_mobile_menu.active {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .navbar_mobile_items {
+    width: 100%;
+    margin: 0 auto;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar_mobile_items li {
+    width: 100%;
+  }
+
+  .navbar_mobile_items a {
+    width: 100%;
+    padding: var(--mobile-menu-item-padding);
+    gap: 12px;
+    color: var(--iconNavbar-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .navbar_mobile_items a my-icon {
+    width: var(--iconNavbar-width);
+    height: var(--iconNavbar-height);
+    color: var(--iconNavbar-color);
+    flex-shrink: 0;
+  }
+
+  .navbar_mobile_items a.active my-icon {
+    color: var(--aNavbar-hover);
+  }
+
+  .navbar_mobile_items a:hover my-icon {
+    color: var(--mobile-menu-hover);
+  }
+
+  .navbar_mobile_items .theme {
+    width: 100%;
+  }
+
+  .navbar_mobile_items .theme button {
+    padding: var(--mobile-menu-item-padding);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar_mobile_main a.scroll_return my-icon {
+    color: var(--iconNavbar-color);
+  }
+
+  .navbar_mobile_main li.mobile_return {
+    display: flex;
+    opacity: 1;
+  }
+
+  .navbar_mobile_fixed {
+    position: fixed;
+    top: var(--navbar-fixed-top);
+    left: 0;
+    width: 100%;
+    z-index: var(--navbar-fixed-zIndex);
+  }
+
+  .navbar_wrapper.navbar_mobile_is_fixed {
+    min-height: var(--navbar-mobile-height);
+  }
+
+  @media (max-width: 600px),
+    (max-width: 926px) and (orientation: landscape) {
+    .navbar_box {
+      display: none;
+    }
+
+    .navbar_box_mobile {
+      display: flex;
+      background-color: var(--boxNavbar-backgroundColor);
+      border-radius: var(--boxNavbar-radius);
+      margin: var(--boxNavbar-margin);
+      border: var(--boxNavbar-border);
+      box-shadow: var(--boxNavbar-boxShadow);
+    }
+  }
+</style>
+
+<div class="navbar_wrapper">
+  <div class="navbar_fixed_sentinel"></div>
+
+  <nav class="navbar_box {{effect}}">
+    <ul class="navbar_items"></ul>
+  </nav>
+
+  <nav class="navbar_box_mobile {{effect}}">
+    <div class="navbar_mobile_main">
+      <ul class="navbar_items_mobile"></ul>
+    </div>
+
+    <div class="navbar_mobile_menu">
+      <ul class="navbar_mobile_items"></ul>
+    </div>
+  </nav>
+</div>
+
+<a class="return" move></a>
+
+<script>
+  function setupNavMode(container, props) {
+    if (!container || !props) {
+      return
+    }
+
+    const navbar = container.querySelector('.navbar_box')
+
+    if (!navbar) {
+      return
+    }
+
+    const wrapper = navbar.closest('.navbar_wrapper')
+
+    const returnButton = container.querySelector('.return')
+
+    const scrollMode = props.scroll
+
+    if (scrollMode === 'none') {
+      setupMobileNav(container, props)
+
+      return
+    }
+
+    const scrollItem = Array.isArray(props.items)
+      ? props.items.find(
+          (item) => item && item.type === 'scroll'
+        )
+      : undefined
+
+    if (scrollMode === 'return') {
+      setupReturnMode(container, returnButton, scrollItem)
+    }
+
+    if (scrollMode === 'fixed') {
+      setupFixedMode(navbar, wrapper, container)
+    }
+
+    if (scrollMode !== 'return' && scrollMode !== 'fixed') {
+      console.warn(
+        '[NavBar] Modo de scroll desconhecido:',
+        scrollMode
+      )
+    }
+
+    setupMobileNav(container, props)
+  }
+
+  function setupReturnMode(
+    container,
+    returnButton,
+    scrollItem
+  ) {
+    if (!returnButton) {
+      return
+    }
+
+    if (!scrollItem) {
+      return
+    }
+
+    const header = document.querySelector('#header')
+
+    if (!header) {
+      return
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      return
+    }
+
+    if (returnButton.dataset.returnBound === 'true') {
+      return
+    }
+
+    if (scrollItem.hrefUp) {
+      returnButton.href = scrollItem.hrefUp
+    }
+
+    if (scrollItem.tooltipUp) {
+      returnButton.dataset.tooltip = scrollItem.tooltipUp
+    }
+
+    if (scrollItem.iconUp) {
+      const icon = document.createElement('my-icon')
+
+      icon.dataset.icon = scrollItem.iconUp
+
+      returnButton.appendChild(icon)
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      returnButton.classList.toggle(
+        'active',
+        !entry.isIntersecting
+      )
+    })
+
+    observer.observe(header)
+
+    returnButton.dataset.returnBound = 'true'
+
+    returnButton._returnObserver = observer
+  }
+
+  function setupFixedMode(navbar, wrapper, container) {
+    if (!navbar) {
+      return
+    }
+
+    if (navbar.dataset.fixedBound === 'true') {
+      return
+    }
+
+    const sentinel = navbar.parentElement?.querySelector(
+      '.navbar_fixed_sentinel'
+    )
+
+    if (!sentinel) {
+      console.warn(
+        '[NavBar] Sentinela do fixed não encontrada.'
+      )
+
+      return
+    }
+
+    function updateNavbarHeight() {
+      const height = navbar.offsetHeight
+
+      if (wrapper) {
+        wrapper.style.setProperty(
+          '--navbar-height',
+          `${height}px`
+        )
+      }
+    }
+
+    updateNavbarHeight()
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const shouldFix = !entry.isIntersecting
+
+        navbar.classList.toggle('navbar_fixed', shouldFix)
+
+        if (wrapper) {
+          wrapper.classList.toggle(
+            'navbar_is_fixed',
+            shouldFix
+          )
+        }
+      },
+      {
+        threshold: 0,
+      }
+    )
+
+    observer.observe(sentinel)
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateNavbarHeight()
+    })
+
+    resizeObserver.observe(navbar)
+
+    setupFixedScroll(container)
+
+    navbar.dataset.fixedBound = 'true'
+
+    navbar._fixedObserver = observer
+
+    navbar._fixedResizeObserver = resizeObserver
+  }
+
+  function setupFixedScroll(container) {
+    if (!container) {
+      return
+    }
+
+    const scrollLink = container.querySelector(
+      '.navbar_box a[data-scroll-item="true"]'
+    )
+
+    if (!scrollLink) {
+      return
+    }
+
+    if (scrollLink.dataset.scrollBound === 'true') {
+      return
+    }
+
+    const hrefDown = scrollLink.dataset.scrollHrefDown
+
+    const hrefUp = scrollLink.dataset.scrollHrefUp
+
+    const tooltipDown = scrollLink.dataset.scrollTooltipDown
+
+    const tooltipUp = scrollLink.dataset.scrollTooltipUp
+
+    const iconDown = scrollLink.dataset.scrollIconDown
+
+    const iconUp = scrollLink.dataset.scrollIconUp
+
+    let currentState = null
+
+    function setScrollIcon(iconName) {
+      const currentIcon =
+        scrollLink.querySelector('my-icon')
+
+      if (!iconName) {
+        if (currentIcon) {
+          currentIcon.remove()
+        }
+
+        return
+      }
+
+      if (!currentIcon) {
+        const newIcon = document.createElement('my-icon')
+
+        newIcon.dataset.icon = iconName
+
+        scrollLink.appendChild(newIcon)
+
+        return
+      }
+
+      if (currentIcon.dataset.icon === iconName) {
+        return
+      }
+
+      const newIcon = document.createElement('my-icon')
+
+      newIcon.dataset.icon = iconName
+
+      newIcon.className = currentIcon.className
+
+      currentIcon.replaceWith(newIcon)
+    }
+
+    function isAtBottom() {
+      const scrollTop = window.scrollY
+
+      const viewportHeight = window.innerHeight
+
+      const documentHeight =
+        document.documentElement.scrollHeight
+
+      return (
+        scrollTop + viewportHeight >= documentHeight - 2
+      )
+    }
+
+    function setDownState() {
+      if (currentState === 'down') {
+        return
+      }
+
+      currentState = 'down'
+
+      if (hrefDown) {
+        scrollLink.href = hrefDown
+      } else {
+        scrollLink.removeAttribute('href')
+      }
+
+      if (tooltipDown) {
+        scrollLink.dataset.tooltip = tooltipDown
+      } else {
+        delete scrollLink.dataset.tooltip
+      }
+
+      setScrollIcon(iconDown)
+
+      scrollLink.classList.remove('scroll_return')
+    }
+
+    function setUpState() {
+      if (currentState === 'up') {
+        return
+      }
+
+      currentState = 'up'
+
+      if (hrefUp) {
+        scrollLink.href = hrefUp
+      } else {
+        scrollLink.removeAttribute('href')
+      }
+
+      if (tooltipUp) {
+        scrollLink.dataset.tooltip = tooltipUp
+      } else {
+        delete scrollLink.dataset.tooltip
+      }
+
+      setScrollIcon(iconUp)
+
+      scrollLink.classList.add('scroll_return')
+    }
+
+    function updateScroll() {
+      if (isAtBottom()) {
+        setUpState()
+
+        return
+      }
+
+      setDownState()
+    }
+
+    let ticking = false
+
+    function onScroll() {
+      if (ticking) {
+        return
+      }
+
+      ticking = true
+
+      requestAnimationFrame(() => {
+        updateScroll()
+
+        ticking = false
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    })
+
+    window.addEventListener('resize', updateScroll)
+
+    updateScroll()
+
+    scrollLink.dataset.scrollBound = 'true'
+
+    scrollLink._scrollHandler = onScroll
+  }
+
+  function createNavLink(item) {
+    const li = document.createElement('li')
+
+    const a = document.createElement('a')
+
+    if (item.style) {
+      a.classList.add(item.style)
+    }
+
+    if (item.href) {
+      a.href = item.href
+    }
+
+    if (item.tooltip) {
+      a.dataset.tooltip = item.tooltip
+    }
+
+    switch (item.navigation) {
+      case 'page':
+        a.setAttribute('page', '')
+
+        break
+
+      case 'move':
+        a.setAttribute('move', '')
+
+        break
+
+      case 'link':
+        break
+
+      default:
+        console.warn(
+          '[NavBar] navigation inválida:',
+          item.navigation,
+          item
+        )
+
+        break
+    }
+
+    if (item.icon) {
+      const icon = document.createElement('my-icon')
+
+      icon.dataset.icon = item.icon
+
+      a.appendChild(icon)
+    }
+
+    li.appendChild(a)
+
+    return li
+  }
+
+  function createScrollItem(item) {
+    const li = document.createElement('li')
+
+    const a = document.createElement('a')
+
+    if (item.navigation !== 'move') {
+      console.warn(
+        '[NavBar] O tipo "scroll" exige navigation: "move".',
+        item
+      )
+
+      return null
+    }
+
+    a.setAttribute('move', '')
+
+    a.dataset.scrollItem = 'true'
+
+    if (item.style) {
+      a.classList.add(item.style)
+    }
+
+    if (item.hrefDown) {
+      a.href = item.hrefDown
+    }
+
+    if (item.tooltipDown) {
+      a.dataset.tooltip = item.tooltipDown
+    }
+
+    if (item.hrefDown) {
+      a.dataset.scrollHrefDown = item.hrefDown
+    }
+
+    if (item.tooltipDown) {
+      a.dataset.scrollTooltipDown = item.tooltipDown
+    }
+
+    if (item.iconDown) {
+      a.dataset.scrollIconDown = item.iconDown
+    }
+
+    if (item.hrefUp) {
+      a.dataset.scrollHrefUp = item.hrefUp
+    }
+
+    if (item.tooltipUp) {
+      a.dataset.scrollTooltipUp = item.tooltipUp
+    }
+
+    if (item.iconUp) {
+      a.dataset.scrollIconUp = item.iconUp
+    }
+
+    if (item.iconDown) {
+      const icon = document.createElement('my-icon')
+
+      icon.dataset.icon = item.iconDown
+
+      a.appendChild(icon)
+    }
+
+    li.appendChild(a)
+
+    return li
+  }
+
+  function createNavButton(item) {
+    const li = document.createElement('li')
+
+    const button = document.createElement('button')
+
+    button.type = 'button'
+
+    if (item.style) {
+      button.classList.add(item.style)
+    }
+
+    if (item.tooltip) {
+      button.dataset.tooltip = item.tooltip
+    }
+
+    if (item.icon) {
+      const icon = document.createElement('my-icon')
+
+      icon.dataset.icon = item.icon
+
+      button.appendChild(icon)
+    }
+
+    li.appendChild(button)
+
+    return li
+  }
+
+  function createThemeButton(item) {
+    const li = document.createElement('li')
+
+    li.classList.add('theme')
+
+    const button = document.createElement('button')
+
+    button.type = 'button'
+
+    if (item.style) {
+      button.classList.add(item.style)
+    }
+
+    if (item.ariaLabel) {
+      button.setAttribute('aria-label', item.ariaLabel)
+    }
+
+    const track = document.createElement('span')
+
+    track.className = 'toggle_track'
+
+    if (item.tooltip) {
+      track.dataset.tooltip = item.tooltip
+    }
+
+    const thumb = document.createElement('span')
+
+    thumb.className = 'toggle_thumb'
+
+    if (item.iconSun) {
+      const sun = document.createElement('my-icon')
+
+      sun.dataset.icon = item.iconSun
+
+      thumb.appendChild(sun)
+    }
+
+    if (item.iconMoon) {
+      const moon = document.createElement('my-icon')
+
+      moon.dataset.icon = item.iconMoon
+
+      thumb.appendChild(moon)
+    }
+
+    track.appendChild(thumb)
+
+    button.appendChild(track)
+
+    li.appendChild(button)
+
+    return li
+  }
+
+  function createNavItem(item) {
+    if (!item || typeof item !== 'object') {
+      return null
+    }
+
+    switch (item.type) {
+      case 'link':
+        return createNavLink(item)
+
+      case 'scroll':
+        return createScrollItem(item)
+
+      case 'button':
+        return createNavButton(item)
+
+      case 'theme':
+        return createThemeButton(item)
+
+      default:
+        console.warn(
+          '[NavBar] Tipo de item desconhecido:',
+          item.type
+        )
+
+        return null
+    }
+  }
+
+  function createMobileLink(item) {
+    if (item.type !== 'link') {
+      return null
+    }
+
+    const li = document.createElement('li')
+
+    const a = document.createElement('a')
+
+    if (item.style) {
+      a.classList.add(item.style)
+    }
+
+    if (item.href) {
+      a.href = item.href
+    }
+
+    if (item.tooltip) {
+      a.dataset.tooltip = item.tooltip
+    }
+
+    switch (item.navigation) {
+      case 'page':
+        a.setAttribute('page', '')
+
+        break
+
+      case 'move':
+        a.setAttribute('move', '')
+
+        break
+
+      case 'link':
+        break
+
+      default:
+        console.warn(
+          '[NavBar] navigation inválida:',
+          item.navigation,
+          item
+        )
+
+        break
+    }
+
+    if (item.icon) {
+      const icon = document.createElement('my-icon')
+
+      icon.dataset.icon = item.icon
+
+      a.appendChild(icon)
+    }
+
+    li.appendChild(a)
+
+    return li
+  }
+
+  function setupMobileMenu(container, props) {
+    if (!props.mobile) {
+      return
+    }
+
+    const mobile = props.mobile
+
+    if (!mobile.openMenu) {
+      return
+    }
+
+    if (!mobile.closeMenu) {
+      return
+    }
+
+    const mobileNavbar = container.querySelector(
+      '.navbar_box_mobile'
+    )
+
+    if (!mobileNavbar) {
+      return
+    }
+
+    const mainItems = mobileNavbar.querySelector(
+      '.navbar_items_mobile'
+    )
+
+    const menu = mobileNavbar.querySelector(
+      '.navbar_mobile_menu'
+    )
+
+    const menuItems = mobileNavbar.querySelector(
+      '.navbar_mobile_items'
+    )
+
+    if (!mainItems || !menu || !menuItems) {
+      return
+    }
+
+    let menuOpen = false
+
+    const menuLi = document.createElement('li')
+
+    const menuButton = document.createElement('button')
+
+    menuButton.type = 'button'
+
+    menuButton.setAttribute('aria-expanded', 'false')
+
+    const menuIcon = document.createElement('my-icon')
+
+    menuIcon.dataset.icon = mobile.openMenu
+
+    menuButton.appendChild(menuIcon)
+
+    menuLi.appendChild(menuButton)
+
+    mainItems.appendChild(menuLi)
+
+    if (Array.isArray(props.items)) {
+      props.items.forEach((item) => {
+        if (item.type !== 'link') {
+          return
+        }
+
+        const element = createMobileLink(item)
+
+        if (element) {
+          menuItems.appendChild(element)
+        }
+      })
+    }
+
+    function setMenuState(open) {
+      menuOpen = open
+
+      menu.classList.toggle('active', menuOpen)
+
+      menuButton.setAttribute(
+        'aria-expanded',
+        String(menuOpen)
+      )
+
+      const currentIcon =
+        menuButton.querySelector('my-icon')
+
+      if (!currentIcon) {
+        return
+      }
+
+      const iconName = menuOpen
+        ? mobile.closeMenu
+        : mobile.openMenu
+
+      if (currentIcon.dataset.icon === iconName) {
+        return
+      }
+
+      const newIcon = document.createElement('my-icon')
+
+      newIcon.dataset.icon = iconName
+
+      currentIcon.replaceWith(newIcon)
+    }
+
+    menuButton.addEventListener('click', () => {
+      setMenuState(!menuOpen)
+    })
+
+    menuItems.addEventListener('click', (event) => {
+      const link = event.target.closest('a[page]')
+
+      if (!link) {
+        return
+      }
+
+      setMenuState(false)
+    })
+
+    menuButton._mobileMenuState = setMenuState
+  }
+  function setupMobileTheme(container, props) {
+    const mobileNavbar = container.querySelector(
+      '.navbar_box_mobile'
+    )
+
+    if (!mobileNavbar) {
+      return
+    }
+
+    const mainItems = mobileNavbar.querySelector(
+      '.navbar_items_mobile'
+    )
+
+    if (!mainItems) {
+      return
+    }
+
+    if (!Array.isArray(props.items)) {
+      return
+    }
+
+    const themeItem = props.items.find(
+      (item) => item && item.type === 'theme'
+    )
+
+    if (!themeItem) {
+      return
+    }
+
+    const element = createThemeButton(themeItem)
+
+    if (!element) {
+      return
+    }
+
+    mainItems.appendChild(element)
+  }
+
+  function setupMobileScroll(container, props) {
+    const scrollMode = props.scroll
+
+    if (scrollMode !== 'fixed' && scrollMode !== 'return') {
+      return
+    }
+
+    const mobileNavbar = container.querySelector(
+      '.navbar_box_mobile'
+    )
+
+    if (!mobileNavbar) {
+      return
+    }
+
+    const mainItems = mobileNavbar.querySelector(
+      '.navbar_items_mobile'
+    )
+
+    if (!mainItems) {
+      return
+    }
+
+    if (!Array.isArray(props.items)) {
+      return
+    }
+
+    const scrollItem = props.items.find(
+      (item) => item && item.type === 'scroll'
+    )
+
+    if (!scrollItem) {
+      return
+    }
+
+    if (scrollMode === 'return') {
+      setupMobileReturnScroll(
+        mobileNavbar,
+        mainItems,
+        scrollItem
+      )
+
+      return
+    }
+
+    if (scrollMode === 'fixed') {
+      setupMobileFixedScroll(
+        mobileNavbar,
+        mainItems,
+        scrollItem
+      )
+    }
+  }
+
+  function setupMobileReturnScroll(
+    mobileNavbar,
+    mainItems,
+    scrollItem
+  ) {
+    const element = createScrollItem(scrollItem)
+
+    if (!element) {
+      return
+    }
+
+    element.classList.add('mobile_return')
+
+    mainItems.appendChild(element)
+
+    const scrollLink = element.querySelector(
+      'a[data-scroll-item="true"]'
+    )
+
+    if (!scrollLink) {
+      return
+    }
+
+    const hrefDown = scrollLink.dataset.scrollHrefDown
+
+    const hrefUp = scrollLink.dataset.scrollHrefUp
+
+    const tooltipDown = scrollLink.dataset.scrollTooltipDown
+
+    const tooltipUp = scrollLink.dataset.scrollTooltipUp
+
+    const iconDown = scrollLink.dataset.scrollIconDown
+
+    const iconUp = scrollLink.dataset.scrollIconUp
+
+    let currentState = null
+
+    function setIcon(iconName) {
+      const currentIcon =
+        scrollLink.querySelector('my-icon')
+
+      if (!iconName) {
+        if (currentIcon) {
+          currentIcon.remove()
+        }
+
+        return
+      }
+
+      if (!currentIcon) {
+        const icon = document.createElement('my-icon')
+
+        icon.dataset.icon = iconName
+
+        scrollLink.appendChild(icon)
+
+        return
+      }
+
+      if (currentIcon.dataset.icon === iconName) {
+        return
+      }
+
+      const newIcon = document.createElement('my-icon')
+
+      newIcon.dataset.icon = iconName
+
+      newIcon.className = currentIcon.className
+
+      currentIcon.replaceWith(newIcon)
+    }
+
+    function setDownState() {
+      if (currentState === 'down') {
+        return
+      }
+
+      currentState = 'down'
+
+      if (hrefDown) {
+        scrollLink.href = hrefDown
+      } else {
+        scrollLink.removeAttribute('href')
+      }
+
+      if (tooltipDown) {
+        scrollLink.dataset.tooltip = tooltipDown
+      } else {
+        delete scrollLink.dataset.tooltip
+      }
+
+      setIcon(iconDown)
+
+      scrollLink.classList.remove('scroll_return')
+    }
+
+    function setUpState() {
+      if (currentState === 'up') {
+        return
+      }
+
+      currentState = 'up'
+
+      if (hrefUp) {
+        scrollLink.href = hrefUp
+      } else {
+        scrollLink.removeAttribute('href')
+      }
+
+      if (tooltipUp) {
+        scrollLink.dataset.tooltip = tooltipUp
+      } else {
+        delete scrollLink.dataset.tooltip
+      }
+
+      setIcon(iconUp)
+
+      scrollLink.classList.add('scroll_return')
+    }
+
+    const header = document.querySelector('#header')
+
+    if (!header) {
+      return
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      return
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setDownState()
+      } else {
+        setUpState()
+      }
+    })
+
+    observer.observe(header)
+
+    if (header.getBoundingClientRect().top >= 0) {
+      setDownState()
+    } else {
+      setUpState()
+    }
+
+    element.dataset.mobileReturnBound = 'true'
+
+    element._mobileReturnObserver = observer
+  }
+
+  function setupMobileFixedScroll(
+    mobileNavbar,
+    mainItems,
+    scrollItem
+  ) {
+    const element = createScrollItem(scrollItem)
+
+    if (!element) {
+      return
+    }
+
+    mainItems.appendChild(element)
+
+    const scrollLink = element.querySelector(
+      'a[data-scroll-item="true"]'
+    )
+
+    if (!scrollLink) {
+      return
+    }
+
+    function updateMobileHeight() {
+      const height = mobileNavbar.offsetHeight
+
+      const wrapper = mobileNavbar.closest(
+        '.navbar_wrapper'
+      )
+
+      if (wrapper) {
+        wrapper.style.setProperty(
+          '--navbar-mobile-height',
+          `${height}px`
+        )
+      }
+    }
+
+    updateMobileHeight()
+
+    const sentinel = mobileNavbar
+      .closest('.navbar_wrapper')
+      ?.querySelector('.navbar_fixed_sentinel')
+
+    if (!sentinel) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const shouldFix = !entry.isIntersecting
+
+        mobileNavbar.classList.toggle(
+          'navbar_mobile_fixed',
+          shouldFix
+        )
+
+        const wrapper = mobileNavbar.closest(
+          '.navbar_wrapper'
+        )
+
+        if (wrapper) {
+          wrapper.classList.toggle(
+            'navbar_mobile_is_fixed',
+            shouldFix
+          )
+        }
+      },
+      {
+        threshold: 0,
+      }
+    )
+
+    observer.observe(sentinel)
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateMobileHeight()
+    })
+
+    resizeObserver.observe(mobileNavbar)
+
+    const hrefDown = scrollLink.dataset.scrollHrefDown
+
+    const hrefUp = scrollLink.dataset.scrollHrefUp
+
+    const tooltipDown = scrollLink.dataset.scrollTooltipDown
+
+    const tooltipUp = scrollLink.dataset.scrollTooltipUp
+
+    const iconDown = scrollLink.dataset.scrollIconDown
+
+    const iconUp = scrollLink.dataset.scrollIconUp
+
+    let currentState = null
+
+    function setIcon(iconName) {
+      const currentIcon =
+        scrollLink.querySelector('my-icon')
+
+      if (!iconName) {
+        if (currentIcon) {
+          currentIcon.remove()
+        }
+
+        return
+      }
+
+      if (!currentIcon) {
+        const icon = document.createElement('my-icon')
+
+        icon.dataset.icon = iconName
+
+        scrollLink.appendChild(icon)
+
+        return
+      }
+
+      if (currentIcon.dataset.icon === iconName) {
+        return
+      }
+
+      const newIcon = document.createElement('my-icon')
+
+      newIcon.dataset.icon = iconName
+
+      newIcon.className = currentIcon.className
+
+      currentIcon.replaceWith(newIcon)
+    }
+
+    function isAtBottom() {
+      const scrollTop = window.scrollY
+
+      const viewportHeight = window.innerHeight
+
+      const documentHeight =
+        document.documentElement.scrollHeight
+
+      return (
+        scrollTop + viewportHeight >= documentHeight - 2
+      )
+    }
+
+    function setDownState() {
+      if (currentState === 'down') {
+        return
+      }
+
+      currentState = 'down'
+
+      if (hrefDown) {
+        scrollLink.href = hrefDown
+      } else {
+        scrollLink.removeAttribute('href')
+      }
+
+      if (tooltipDown) {
+        scrollLink.dataset.tooltip = tooltipDown
+      } else {
+        delete scrollLink.dataset.tooltip
+      }
+
+      setIcon(iconDown)
+
+      scrollLink.classList.remove('scroll_return')
+    }
+
+    function setUpState() {
+      if (currentState === 'up') {
+        return
+      }
+
+      currentState = 'up'
+
+      if (hrefUp) {
+        scrollLink.href = hrefUp
+      } else {
+        scrollLink.removeAttribute('href')
+      }
+
+      if (tooltipUp) {
+        scrollLink.dataset.tooltip = tooltipUp
+      } else {
+        delete scrollLink.dataset.tooltip
+      }
+
+      setIcon(iconUp)
+
+      scrollLink.classList.add('scroll_return')
+    }
+
+    function updateScroll() {
+      if (isAtBottom()) {
+        setUpState()
+
+        return
+      }
+
+      setDownState()
+    }
+
+    let ticking = false
+
+    function onScroll() {
+      if (ticking) {
+        return
+      }
+
+      ticking = true
+
+      requestAnimationFrame(() => {
+        updateScroll()
+
+        ticking = false
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    })
+
+    window.addEventListener('resize', updateScroll)
+
+    updateScroll()
+
+    mobileNavbar.dataset.mobileFixedBound = 'true'
+
+    mobileNavbar._mobileFixedObserver = observer
+
+    mobileNavbar._mobileResizeObserver = resizeObserver
+
+    scrollLink.dataset.mobileScrollBound = 'true'
+
+    scrollLink._mobileScrollHandler = onScroll
+  }
+
+  function setupMobileNav(container, props) {
+    const mobileNavbar = container.querySelector(
+      '.navbar_box_mobile'
+    )
+
+    if (!mobileNavbar) {
+      return
+    }
+
+    const mainItems = mobileNavbar.querySelector(
+      '.navbar_items_mobile'
+    )
+
+    if (!mainItems) {
+      return
+    }
+
+    mainItems.innerHTML = ''
+    setupMobileMenu(container, props)
+
+    setupMobileTheme(container, props)
+
+    setupMobileScroll(container, props)
+  }
+
+  function setupNavBar(container, props) {
+    if (!container || !props) {
+      return
+    }
+
+    const itemsContainer =
+      container.querySelector('.navbar_items')
+
+    if (!itemsContainer) {
+      console.warn('[NavBar] .navbar_items não encontrado.')
+
+      return
+    }
+
+    if (!Array.isArray(props.items)) {
+      return
+    }
+
+    itemsContainer.innerHTML = ''
+
+    props.items.forEach((item) => {
+      const element = createNavItem(item)
+
+      if (element) {
+        itemsContainer.appendChild(element)
+      }
+    })
+
+    setupActiveMenu(container)
+
+    setupNavMode(container, props)
+  }
+
+  function setupActiveMenu(container) {
+    function updateActiveMenu() {
+      const links = container.querySelectorAll(
+        '.navbar_box a[page], ' +
+          '.navbar_mobile_items a[page]'
+      )
+
+      const currentHash = window.location.hash
+
+      links.forEach((link) => {
+        if (link.getAttribute('href') === currentHash) {
+          link.classList.add('active')
+        } else {
+          link.classList.remove('active')
+        }
+      })
+    }
+
+    window.addEventListener('hashchange', updateActiveMenu)
+
+    document.addEventListener(
+      'spa:pageLoaded',
+      updateActiveMenu
+    )
+
+    if (!window.location.hash) {
+      const firstLink = container.querySelector(
+        '.navbar_box a[page]'
+      )
+
+      if (firstLink) {
+        const href = firstLink.getAttribute('href')
+
+        if (href) {
+          window.location.hash = href.replace(/^#/, '')
+        }
+      }
+    }
+
+    updateActiveMenu()
+  }
+
+  setupNavBar(container, props)
+</script>

@@ -1,0 +1,57 @@
+<style>
+  :root {
+    --h1Title-size: 3rem;
+    --h1Title-margin: 0 0 0 0;
+    --h1Title-color: #000;
+    --h1Title-weight: 600;
+    --h1Title-transform: uppercase;
+    --h1Title-letter: 2px;
+
+    --strongTitle-size: 1.8rem;
+    --strongTitle-color: #000;
+    --strongTitle-weight: 600;
+    --strongTitle-transform: none;
+    --strongTitle-letter: 2px;
+
+    --boxTitle-gap: 15px;
+    --boxTitle-margin: 20px 0 40px 0;
+    --boxTitle-textAlign: center;
+  }
+
+  html[data-theme='dark'] {
+    --h1Title-color: #fff;
+    --strongTitle-color: #fff;
+  }
+
+  .title_box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--boxTitle-gap);
+    margin: var(--boxTitle-margin);
+    text-align: var(--boxTitle-textAlign);
+
+    h1 {
+      font-size: var(--h1Title-size);
+      color: var(--h1Title-color);
+      font-weight: var(--h1Title-weight);
+      text-transform: var(--h1Title-transform);
+      letter-spacing: var(--h1Title-letter);
+      margin: var(--h1Title-margin);
+    }
+
+    strong {
+      font-size: var(--strongTitle-size);
+      color: var(--strongTitle-color);
+      font-weight: var(--strongTitle-weight);
+      text-transform: var(--strongTitle-transform);
+      letter-spacing: var(--strongTitle-letter);
+    }
+  }
+</style>
+
+<html>
+  <div class="title_box">
+    <h1>{{nameTitle}}</h1>
+    <strong>{{userTitle}}</strong>
+  </div>
+</html>

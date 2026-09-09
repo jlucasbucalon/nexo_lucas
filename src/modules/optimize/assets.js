@@ -3,13 +3,8 @@
 // --------------------------------------------------
 
 const isBrowser = typeof window !== 'undefined'
+
 const isDOM = isBrowser && typeof document !== 'undefined'
-
-// --------------------------------------------------
-// IMPORTS (SSR SAFE)
-// --------------------------------------------------
-
-import { config } from '../../main.js'
 
 // --------------------------------------------------
 // IGNORED ERRORS
@@ -21,13 +16,20 @@ const IGNORED_ERRORS = [
 ]
 
 function shouldIgnore(msg) {
-  if (!msg) return false
+  if (!msg) {
+    return false
+  }
+
   const text = String(msg)
-  return IGNORED_ERRORS.some((p) => text.includes(p))
+
+  return IGNORED_ERRORS.some((pattern) =>
+    text.includes(pattern)
+  )
 }
 
 // --------------------------------------------------
-// ERROR HANDLER (NO SIDE EFFECT AT IMPORT TIME)
+// ERROR HANDLER
+// NO SIDE EFFECT AT IMPORT TIME
 // --------------------------------------------------
 
 function ignoreError(event) {
@@ -46,13 +48,17 @@ function ignoreError(event) {
 }
 
 // --------------------------------------------------
-// REGISTER GLOBAL HANDLERS (ONLY CLIENT)
+// REGISTER GLOBAL HANDLERS
+// ONLY CLIENT
 // --------------------------------------------------
 
 function setupErrorHandlers() {
-  if (!isBrowser) return
+  if (!isBrowser) {
+    return
+  }
 
   window.addEventListener('error', ignoreError, true)
+
   window.addEventListener(
     'unhandledrejection',
     ignoreError,
@@ -70,6 +76,15 @@ const loadedAssets = {
 }
 
 // --------------------------------------------------
+// ASSET LOADING
+// --------------------------------------------------
+
+const loadingAssets = {
+  css: new Map(),
+  js: new Map(),
+}
+
+// --------------------------------------------------
 // LOAD CSS
 // --------------------------------------------------
 
@@ -77,36 +92,100 @@ export async function loadCSS(
   href,
   { preload = false } = {}
 ) {
-  if (!isDOM) return
+  if (!isDOM || !href) {
+    return
+  }
 
   const url = new URL(href, document.baseURI).href
-  if (loadedAssets.css.has(url)) return
 
-  try {
-    const res = await fetch(url, { method: 'HEAD' })
-    if (!res.ok) return
-  } catch {}
+  // ------------------------------------------------
+  // ALREADY LOADED
+  // ------------------------------------------------
 
-  return new Promise((resolve) => {
+  if (loadedAssets.css.has(url)) {
+    return
+  }
+
+  // ------------------------------------------------
+  // ALREADY LOADING
+  // ------------------------------------------------
+
+  if (loadingAssets.css.has(url)) {
+    return loadingAssets.css.get(url)
+  }
+
+  // ------------------------------------------------
+  // CREATE LOAD
+  // ------------------------------------------------
+
+  const promise = new Promise((resolve) => {
+    const existing = document.querySelector(
+      `link[rel="stylesheet"][href="${url}"]`
+    )
+
+    if (existing) {
+      loadedAssets.css.add(url)
+      resolve()
+      return
+    }
+
     const link = document.createElement('link')
+
+    let finished = false
+
+    const done = (success = false) => {
+      if (finished) {
+        return
+      }
+
+      finished = true
+
+      if (success) {
+        loadedAssets.css.add(url)
+      }
+
+      resolve()
+    }
 
     if (preload) {
       link.rel = 'preload'
+
       link.as = 'style'
+
       link.onload = () => {
         link.rel = 'stylesheet'
-        resolve()
+
+        done(true)
       }
     } else {
       link.rel = 'stylesheet'
-      link.onload = resolve
+
+      link.onload = () => {
+        done(true)
+      }
+    }
+
+    link.onerror = (error) => {
+      console.warn(
+        `[NEXO] Não foi possível carregar CSS: ${url}`,
+        error
+      )
+
+      done(false)
     }
 
     link.href = url
-    document.head.appendChild(link)
 
-    loadedAssets.css.add(url)
+    document.head.appendChild(link)
   })
+
+  loadingAssets.css.set(url, promise)
+
+  try {
+    await promise
+  } finally {
+    loadingAssets.css.delete(url)
+  }
 }
 
 // --------------------------------------------------
@@ -114,76 +193,141 @@ export async function loadCSS(
 // --------------------------------------------------
 
 export async function loadJS(src, module = true) {
-  if (!isDOM) return
+  if (!isDOM || !src) {
+    return
+  }
 
   const url = new URL(src, document.baseURI).href
-  if (loadedAssets.js.has(url)) return
 
-  try {
-    const res = await fetch(url, { method: 'HEAD' })
-    if (!res.ok) return
-  } catch {}
+  // ------------------------------------------------
+  // ALREADY LOADED
+  // ------------------------------------------------
 
-  return new Promise((resolve, reject) => {
+  if (loadedAssets.js.has(url)) {
+    return
+  }
+
+  // ------------------------------------------------
+  // ALREADY LOADING
+  // ------------------------------------------------
+
+  if (loadingAssets.js.has(url)) {
+    return loadingAssets.js.get(url)
+  }
+
+  // ------------------------------------------------
+  // CREATE LOAD
+  // ------------------------------------------------
+
+  const promise = new Promise((resolve, reject) => {
     const script = document.createElement('script')
 
     script.src = url
-    script.defer = true
-    if (module) script.type = 'module'
 
-    script.onload = resolve
-    script.onerror = () =>
-      reject(new Error(`Falha ao carregar ${url}`))
+    script.defer = true
+
+    if (module) {
+      script.type = 'module'
+    }
+
+    let finished = false
+
+    const done = (success = false) => {
+      if (finished) {
+        return
+      }
+
+      finished = true
+
+      if (success) {
+        loadedAssets.js.add(url)
+
+        resolve()
+      } else {
+        reject(new Error(`Falha ao carregar ${url}`))
+      }
+    }
+
+    script.onload = () => {
+      done(true)
+    }
+
+    script.onerror = () => {
+      done(false)
+    }
 
     document.body.appendChild(script)
-    loadedAssets.js.add(url)
   })
+
+  loadingAssets.js.set(url, promise)
+
+  try {
+    await promise
+  } finally {
+    loadingAssets.js.delete(url)
+  }
 }
 
 // --------------------------------------------------
-// INTERSECTION OBSERVER (LAZY LOAD)
+// INTERSECTION OBSERVER
+// GENERIC LAZY LOAD
 // --------------------------------------------------
 
 let lazyObserver = null
 
 function setupLazyObserver() {
-  if (!isDOM || typeof IntersectionObserver === 'undefined')
+  if (
+    !isDOM ||
+    typeof IntersectionObserver === 'undefined'
+  ) {
     return
+  }
+
+  if (lazyObserver) {
+    return
+  }
 
   lazyObserver = new IntersectionObserver(
     async (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue
+        if (!entry.isIntersecting) {
+          continue
+        }
 
         const el = entry.target
 
-        for (const cls of [...el.classList].filter((c) =>
-          c.includes('-')
-        )) {
-          const [category, name] = cls.split('-')
+        // ----------------------------------------
+        // GENERIC LAZY MODULE
+        // ----------------------------------------
 
-          const css = `${config.dirs.models}/${category}/${name}/styles.css`
-          const js = `${config.dirs.models}/${category}/${name}/script.js`
-
+        if (el.dataset?.lazy) {
           try {
-            await loadCSS(css)
-            await loadJS(js)
+            const module = await import(el.dataset.lazy)
 
-            const key = `${category}-${name}`
-            window.Components?.[key]?.init?.()
-          } catch {}
+            if (
+              module &&
+              typeof module.init === 'function'
+            ) {
+              await module.init(el)
+            }
+          } catch (error) {
+            console.warn(
+              `[NEXO] Falha ao carregar módulo lazy "${el.dataset.lazy}".`,
+              error
+            )
+          }
         }
 
-        if (el.dataset.lazy) {
-          import(el.dataset.lazy)
-            .then((m) => m.init?.(el))
-            .catch(() => {})
-        }
+        // ----------------------------------------
+        // STOP OBSERVING
+        // ----------------------------------------
 
         lazyObserver.unobserve(el)
       }
     },
-    { threshold: 0.1 }
+    {
+      threshold: 0.1,
+    }
   )
 }
 
@@ -192,13 +336,21 @@ function setupLazyObserver() {
 // --------------------------------------------------
 
 export function initLazyLoad() {
-  if (!isDOM) return
+  if (!isDOM) {
+    return
+  }
 
-  if (!lazyObserver) setupLazyObserver()
+  if (!lazyObserver) {
+    setupLazyObserver()
+  }
 
-  document
-    .querySelectorAll("[class*='-'], [data-lazy]")
-    .forEach((el) => lazyObserver.observe(el))
+  if (!lazyObserver) {
+    return
+  }
+
+  document.querySelectorAll('[data-lazy]').forEach((el) => {
+    lazyObserver.observe(el)
+  })
 }
 
 // --------------------------------------------------
@@ -206,32 +358,59 @@ export function initLazyLoad() {
 // --------------------------------------------------
 
 export async function lazyLoadRoute() {
-  if (!isDOM) return
+  if (!isDOM) {
+    return
+  }
+
+  // ------------------------------------------------
+  // DATA-LAZY
+  // ------------------------------------------------
 
   document.querySelectorAll('[data-lazy]').forEach((el) => {
-    import(el.dataset.lazy)
-      .then((m) => m.init?.(el))
-      .catch(() => {})
+    const path = el.dataset?.lazy
+
+    if (!path) {
+      return
+    }
+
+    import(path)
+      .then((module) => module.init?.(el))
+      .catch((error) => {
+        console.warn(
+          `[NEXO] Falha ao carregar módulo lazy "${path}".`,
+          error
+        )
+      })
   })
+
+  // ------------------------------------------------
+  // MODULE SCRIPTS
+  // ------------------------------------------------
 
   document
     .querySelectorAll(
       "script[type='module'][src$='script.js']"
     )
-    .forEach((s) => loadJS(s.src).catch(() => {}))
+    .forEach((script) => {
+      loadJS(script.src).catch(() => {})
+    })
 }
 
 // --------------------------------------------------
-// BOOTSTRAP EVENTS (CLIENT ONLY)
+// BOOTSTRAP EVENTS
+// CLIENT ONLY
 // --------------------------------------------------
 
 function setupAutoInit() {
-  if (!isBrowser) return
+  if (!isBrowser) {
+    return
+  }
 
   document.addEventListener(
     'DOMContentLoaded',
     initLazyLoad
   )
+
   document.addEventListener('spa:pageLoaded', initLazyLoad)
 }
 
@@ -240,7 +419,9 @@ function setupAutoInit() {
 // --------------------------------------------------
 
 export function initOptimizer() {
-  if (!isBrowser) return
+  if (!isBrowser) {
+    return
+  }
 
   setupErrorHandlers()
   setupLazyObserver()
@@ -248,26 +429,43 @@ export function initOptimizer() {
 }
 
 // --------------------------------------------------
-// OPTIONAL GLOBAL SHIELD (console filter)
+// OPTIONAL GLOBAL SHIELD
+// CONSOLE FILTER
 // --------------------------------------------------
 
 function setupConsoleFilter() {
-  if (!isBrowser) return
+  if (!isBrowser) {
+    return
+  }
 
   const nativeError = console.error
+
   console.error = (...args) => {
     const msg = args.join(' ')
-    if (shouldIgnore(msg)) return
+
+    if (shouldIgnore(msg)) {
+      return
+    }
+
     nativeError(...args)
   }
 
   const nativeWarn = console.warn
+
   console.warn = (...args) => {
     const msg = args.join(' ')
-    if (shouldIgnore(msg)) return
+
+    if (shouldIgnore(msg)) {
+      return
+    }
+
     nativeWarn(...args)
   }
 }
+
+// --------------------------------------------------
+// INIT CONSOLE FILTER
+// --------------------------------------------------
 
 if (isBrowser) {
   setupConsoleFilter()
