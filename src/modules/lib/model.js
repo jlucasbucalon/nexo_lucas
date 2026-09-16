@@ -1,4 +1,10 @@
 // --------------------------------------------------
+// IMPORTS
+// --------------------------------------------------
+
+import { applyModelAppearance, initProps } from './props.js'
+
+// --------------------------------------------------
 // CACHE
 // --------------------------------------------------
 
@@ -42,6 +48,17 @@ function normalizeModelName(modelName) {
 
 // --------------------------------------------------
 // RESOLVE MODEL COMPONENT
+// --------------------------------------------------
+//
+// Regra: o ÚLTIMO segmento após o hífen é o nome do
+// model, o resto é a categoria.
+//
+// "background-particles" -> category: "background", modelName: "particles"
+// "back-color"           -> category: "back",        modelName: "color"
+//
+// Usada tanto para resolver a string "component" do
+// JSON (padrão data-model) quanto para resolver o
+// nome direto de uma classe (padrão legado por classe).
 // --------------------------------------------------
 
 function resolveModelComponent(component) {
@@ -111,25 +128,13 @@ async function loadCss(category, modelName) {
     return
   }
 
-  // ------------------------------------------------
-  // ALREADY LOADED
-  // ------------------------------------------------
-
   if (loadedCss.has(cssPath)) {
     return
   }
 
-  // ------------------------------------------------
-  // ALREADY LOADING
-  // ------------------------------------------------
-
   if (loadingCss.has(cssPath)) {
     return loadingCss.get(cssPath)
   }
-
-  // ------------------------------------------------
-  // CREATE LOAD
-  // ------------------------------------------------
 
   const promise = new Promise((resolve) => {
     const existing = document.querySelector(
@@ -207,19 +212,11 @@ async function loadJs(category, modelName, elements = []) {
     return
   }
 
-  // ------------------------------------------------
-  // ALREADY LOADED
-  // ------------------------------------------------
-
   if (loadedJs.has(jsPath)) {
     initializeModel(category, modelName, elements)
 
     return
   }
-
-  // ------------------------------------------------
-  // ALREADY LOADING
-  // ------------------------------------------------
 
   if (loadingJs.has(jsPath)) {
     await loadingJs.get(jsPath)
@@ -228,10 +225,6 @@ async function loadJs(category, modelName, elements = []) {
 
     return
   }
-
-  // ------------------------------------------------
-  // CREATE LOAD
-  // ------------------------------------------------
 
   const promise = new Promise((resolve) => {
     const script = document.createElement('script')
@@ -371,10 +364,41 @@ function initializeModel(
 }
 
 // --------------------------------------------------
-// FIND MODEL ELEMENTS
+// GET MODELS CONFIG (JSON do cliente)
 // --------------------------------------------------
 
-function findModelElements(root) {
+function getModelsConfig() {
+  if (!isBrowser) {
+    return {}
+  }
+
+  return window.__nexoClientConfig?.models || {}
+}
+
+// --------------------------------------------------
+// RESOLVE MODEL ENTRY (padrão data-model)
+// --------------------------------------------------
+//
+// Recebe a KEY usada em data-model (ex: "background")
+// e resolve para { category, modelName } a partir do
+// campo "component" no JSON do cliente.
+// --------------------------------------------------
+
+function resolveModelEntry(key) {
+  const entry = getModelsConfig()[key]
+
+  if (!entry || typeof entry.component !== 'string') {
+    return null
+  }
+
+  return resolveModelComponent(entry.component)
+}
+
+// --------------------------------------------------
+// FIND DATA-MODEL ELEMENTS (padrão novo, via JSON)
+// --------------------------------------------------
+
+function findDataModelElements(root) {
   if (
     !root ||
     typeof root.querySelectorAll !== 'function'
@@ -384,9 +408,35 @@ function findModelElements(root) {
 
   const elements = []
 
-  // ------------------------------------------------
-  // ROOT
-  // ------------------------------------------------
+  if (
+    root.nodeType === 1 &&
+    root.hasAttribute?.('data-model')
+  ) {
+    elements.push(root)
+  }
+
+  root
+    .querySelectorAll('[data-model]')
+    .forEach((element) => {
+      elements.push(element)
+    })
+
+  return elements
+}
+
+// --------------------------------------------------
+// FIND CLASS MODEL ELEMENTS (padrão legado, marcador .model)
+// --------------------------------------------------
+
+function findClassModelElements(root) {
+  if (
+    !root ||
+    typeof root.querySelectorAll !== 'function'
+  ) {
+    return []
+  }
+
+  const elements = []
 
   if (
     root.nodeType === 1 &&
@@ -394,10 +444,6 @@ function findModelElements(root) {
   ) {
     elements.push(root)
   }
-
-  // ------------------------------------------------
-  // DESCENDANTS
-  // ------------------------------------------------
 
   root.querySelectorAll('.model').forEach((element) => {
     elements.push(element)
@@ -407,29 +453,95 @@ function findModelElements(root) {
 }
 
 // --------------------------------------------------
-// FIND MODELS
+// ADD MODEL (helper de agregação por categoria/nome)
+// --------------------------------------------------
+
+function addModel(models, resolved, element) {
+  const mapKey = `${resolved.category}/${resolved.modelName}`
+
+  if (!models.has(mapKey)) {
+    models.set(mapKey, {
+      category: resolved.category,
+
+      modelName: resolved.modelName,
+
+      elements: [],
+    })
+  }
+
+  models.get(mapKey).elements.push(element)
+}
+
+// --------------------------------------------------
+// FIND MODELS (une os dois padrões)
 // --------------------------------------------------
 
 function findModels(root) {
-  const elements = findModelElements(root)
-
   const models = new Map()
 
-  for (const element of elements) {
+  // ------------------------------------------------
+  // PADRÃO NOVO: data-model (tem PRIORIDADE)
+  // ------------------------------------------------
+
+  const dataModelElements = findDataModelElements(root)
+
+  for (const element of dataModelElements) {
+    const key = element.dataset.model
+
+    if (!key) {
+      continue
+    }
+
+    const resolved = resolveModelEntry(key)
+
+    if (!resolved) {
+      console.warn(
+        `[NEXO] Model "${key}" não encontrado ou "component" inválido na configuração do cliente.`
+      )
+
+      continue
+    }
+
+    // ------------------------------------------------
+    // GARANTE COMPATIBILIDADE COM CSS BASEADO EM CLASSE
+    // ------------------------------------------------
+    //
+    // Componentes legados usam a própria classe como
+    // seletor CSS (ex: .background-particles). Elementos
+    // resolvidos via data-model não têm essa classe por
+    // padrão, então ela é injetada aqui.
+    // ------------------------------------------------
+
+    const cssClassName = `${resolved.category}-${resolved.modelName}`
+
+    if (!element.classList.contains(cssClassName)) {
+      element.classList.add(cssClassName)
+    }
+
+    addModel(models, resolved, element)
+  }
+
+  // ------------------------------------------------
+  // PADRÃO LEGADO: class="model categoria-nome"
+  // ------------------------------------------------
+  //
+  // Se o elemento já tem data-model, ignora a classe
+  // para evitar resolução ambígua no mesmo elemento.
+  // ------------------------------------------------
+
+  const classModelElements = findClassModelElements(root)
+
+  for (const element of classModelElements) {
+    if (element.hasAttribute('data-model')) {
+      continue
+    }
+
     const classes = [...element.classList]
 
     for (const cls of classes) {
-      // --------------------------------------------
-      // IGNORE MARKER
-      // --------------------------------------------
-
       if (cls === 'model') {
         continue
       }
-
-      // --------------------------------------------
-      // RESOLVE MODEL
-      // --------------------------------------------
 
       const resolved = resolveModelComponent(cls)
 
@@ -437,21 +549,7 @@ function findModels(root) {
         continue
       }
 
-      const key = `${resolved.category}/${resolved.modelName}`
-
-      if (!models.has(key)) {
-        models.set(key, {
-          category: resolved.category,
-
-          modelName: resolved.modelName,
-
-          elements: [],
-        })
-      }
-
-      const model = models.get(key)
-
-      model.elements.push(element)
+      addModel(models, resolved, element)
     }
   }
 
@@ -467,28 +565,46 @@ export async function loadModels(root = document) {
     return
   }
 
-  console.log('[MODEL] ROOT:', root)
+  // ------------------------------------------------
+  // GARANTE OBSERVER DE TEMA ATIVO
+  // ------------------------------------------------
 
-  const models = findModels(root)
+  initProps()
 
-  console.log('[MODEL] MODELS:', models)
+  // ------------------------------------------------
+  // APPEARANCE
+  // ------------------------------------------------
+  //
+  // Só se aplica a elementos data-model, porque só
+  // eles têm uma key de JSON para buscar "appearance".
+  // Elementos do padrão de classe não recebem appearance.
+  // ------------------------------------------------
 
-  if (!models.length) {
-    console.log('[MODEL] Nenhum model encontrado.')
+  const dataModelElements = findDataModelElements(root)
 
-    return
+  for (const element of dataModelElements) {
+    try {
+      applyModelAppearance(element)
+    } catch (error) {
+      console.warn(
+        '[NEXO] Erro ao aplicar appearance do model.',
+        error
+      )
+    }
   }
 
   // ------------------------------------------------
-  // LOAD CSS
+  // CSS + JS (ambos os padrões)
   // ------------------------------------------------
+
+  const models = findModels(root)
+
+  if (!models.length) {
+    return
+  }
 
   await Promise.all(
     models.map(async ({ category, modelName }) => {
-      console.log(
-        `[MODEL] Carregando CSS: ${category}/${modelName}`
-      )
-
       try {
         await loadCss(category, modelName)
       } catch (error) {
@@ -500,17 +616,9 @@ export async function loadModels(root = document) {
     })
   )
 
-  // ------------------------------------------------
-  // LOAD JS
-  // ------------------------------------------------
-
   await Promise.all(
     models.map(
       async ({ category, modelName, elements }) => {
-        console.log(
-          `[MODEL] Carregando JS: ${category}/${modelName}`
-        )
-
         try {
           await loadJs(category, modelName, elements)
         } catch (error) {

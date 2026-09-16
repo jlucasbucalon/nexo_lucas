@@ -20,126 +20,143 @@ export function createApp({
   root,
   client,
 }) {
-  return {
-    // ----------------------------------------------
-    // MOUNT
-    // ----------------------------------------------
+  // ------------------------------------------------
+  // MOUNT
+  // ------------------------------------------------
 
-    mount() {
-      if (!root) {
-        console.error(
-          '[NEXO] Root da aplicação não encontrado.'
-        )
-
-        return
-      }
-
-      // --------------------------------------------
-      // CLIENT VALIDATION
-      // --------------------------------------------
-
-      if (!client) {
-        console.error(
-          '[NEXO] Cliente da aplicação não informado.'
-        )
-
-        return
-      }
-
-      // --------------------------------------------
-      // OPTIMIZATION
-      // --------------------------------------------
-
-      initOptimize()
-
-      // --------------------------------------------
-      // SPA EVENTS
-      // --------------------------------------------
-
-      document.addEventListener(
-        'spa:pageLoaded',
-        async (event) => {
-          const container =
-            event.detail?.root ||
-            event.detail?.container ||
-            root
-
-          // ----------------------------------------
-          // MODELS
-          // ----------------------------------------
-
-          try {
-            await loadModels(container, config)
-          } catch (error) {
-            console.warn('[NEXO] loadModels falhou:', error)
-          }
-
-          // ----------------------------------------
-          // COMPONENTS
-          // ----------------------------------------
-
-          try {
-            await loadAllComponents(container)
-          } catch (error) {
-            console.warn(
-              '[NEXO] loadAllComponents falhou:',
-              error
-            )
-          }
-        }
+  async function mount() {
+    if (!root) {
+      console.error(
+        '[NEXO] Root da aplicação não encontrado.'
       )
 
-      // --------------------------------------------
-      // INITIAL MODELS
-      // --------------------------------------------
+      return
+    }
 
-      try {
-        loadModels(document, config)
-      } catch (error) {
-        console.warn(
-          '[NEXO] loadModels inicial falhou:',
-          error
+    // ----------------------------------------------
+    // CLIENT VALIDATION
+    // ----------------------------------------------
+
+    if (!client) {
+      console.error(
+        '[NEXO] Cliente da aplicação não informado.'
+      )
+
+      return
+    }
+
+    // ----------------------------------------------
+    // OPTIMIZATION
+    // ----------------------------------------------
+
+    initOptimize()
+
+    // ----------------------------------------------
+    // SPA EVENTS
+    // ----------------------------------------------
+
+    document.addEventListener(
+      'spa:pageLoaded',
+      async (event) => {
+        const container =
+          event.detail?.root ||
+          event.detail?.container ||
+          root
+
+        // ------------------------------------------
+        // MODELS
+        // ------------------------------------------
+
+        try {
+          await loadModels(container, config)
+        } catch (error) {
+          console.warn('[NEXO] loadModels falhou:', error)
+        }
+
+        // ------------------------------------------
+        // COMPONENTS
+        // ------------------------------------------
+
+        try {
+          await loadAllComponents(container)
+        } catch (error) {
+          console.warn(
+            '[NEXO] loadAllComponents falhou:',
+            error
+          )
+        }
+
+        // ------------------------------------------
+        // PAGE READY
+        // ------------------------------------------
+
+        document.dispatchEvent(
+          new CustomEvent('spa:ready', {
+            detail: {
+              client,
+              page: event.detail?.page || null,
+              root: container,
+            },
+          })
         )
       }
+    )
 
-      // --------------------------------------------
-      // INITIAL COMPONENTS
-      // --------------------------------------------
+    // ----------------------------------------------
+    // INITIAL MODELS
+    // ----------------------------------------------
 
-      try {
-        loadAllComponents(document)
-      } catch (error) {
-        console.warn(
-          '[NEXO] loadAllComponents inicial falhou:',
-          error
-        )
-      }
+    try {
+      await loadModels(document, config)
+    } catch (error) {
+      console.warn(
+        '[NEXO] loadModels inicial falhou:',
+        error
+      )
+    }
 
-      // --------------------------------------------
-      // ROUTER
-      // --------------------------------------------
+    // ----------------------------------------------
+    // INITIAL COMPONENTS
+    // ----------------------------------------------
 
-      const router = createRouter({
-        childrens,
+    try {
+      await loadAllComponents(document)
+    } catch (error) {
+      console.warn(
+        '[NEXO] loadAllComponents inicial falhou:',
+        error
+      )
+    }
 
-        config,
+    // ----------------------------------------------
+    // ROUTER
+    // ----------------------------------------------
 
-        root,
+    const router = createRouter({
+      childrens,
+      config,
+      root,
+      client,
+    })
 
-        client,
-      })
+    // ----------------------------------------------
+    // START ROUTER
+    // ----------------------------------------------
 
-      // --------------------------------------------
-      // START ROUTER
-      // --------------------------------------------
+    router.init()
 
-      router.init()
+    // ----------------------------------------------
+    // RETURN
+    // ----------------------------------------------
 
-      // --------------------------------------------
-      // RETURN
-      // --------------------------------------------
+    return router
+  }
 
-      return router
-    },
+  // ------------------------------------------------
+  // API
+  // ------------------------------------------------
+
+  return {
+    mount,
   }
 }

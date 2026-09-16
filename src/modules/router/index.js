@@ -99,10 +99,25 @@ export function createRouter({
 
     if (!children) {
       root.innerHTML = `
-        <p>Página não encontrada.</p>
+        <p>
+          Página não encontrada.
+        </p>
       `
 
       console.warn(`[SPA] Rota não encontrada: ${path}`)
+
+      document.dispatchEvent(
+        new CustomEvent('spa:error', {
+          detail: {
+            client,
+            page: path,
+            root,
+            error: new Error(
+              `Rota não encontrada: ${path}`
+            ),
+          },
+        })
+      )
 
       return
     }
@@ -117,8 +132,23 @@ export function createRouter({
       )
 
       root.innerHTML = `
-        <p>Erro: página da rota não definida.</p>
+        <p>
+          Erro: página da rota não definida.
+        </p>
       `
+
+      document.dispatchEvent(
+        new CustomEvent('spa:error', {
+          detail: {
+            client,
+            page: path,
+            root,
+            error: new Error(
+              `A rota "${path}" não possui uma página definida.`
+            ),
+          },
+        })
+      )
 
       return
     }
@@ -130,13 +160,22 @@ export function createRouter({
     try {
       await loadPage({
         pagePath: children.page,
-
         root,
-
         client,
       })
     } catch (error) {
       console.error('[SPA] Erro ao carregar página:', error)
+
+      document.dispatchEvent(
+        new CustomEvent('spa:error', {
+          detail: {
+            client,
+            page: children.page,
+            root,
+            error,
+          },
+        })
+      )
     }
   }
 
@@ -181,7 +220,6 @@ export function createRouter({
 
   return {
     init,
-
     resolveRoute,
   }
 }

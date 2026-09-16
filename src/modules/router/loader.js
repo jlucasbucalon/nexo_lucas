@@ -183,6 +183,21 @@ export async function loadPage({ client, pagePath, root }) {
       </p>
     `
 
+    // ----------------------------------------------
+    // PAGE ERROR EVENT
+    // ----------------------------------------------
+
+    document.dispatchEvent(
+      new CustomEvent('spa:error', {
+        detail: {
+          client,
+          page: pagePath,
+          root,
+          error: err,
+        },
+      })
+    )
+
     return false
   }
 }

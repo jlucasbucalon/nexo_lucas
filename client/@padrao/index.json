@@ -1,4 +1,19 @@
 {
+  "meta": {
+    "title": "O Bucalonês",
+    "description": "Um universo de fantasia, mitologia e ficção.",
+    "image": "/assets/og-image.jpg",
+
+    "og": {
+      "type": "website",
+      "url": "https://exemplo.com"
+    },
+
+    "twitter": {
+      "card": "summary_large_image"
+    }
+  },
+
   "config": {
     "pageInit": "/home"
   },
@@ -133,6 +148,19 @@
     }
   },
 
+  "models": {
+    "background": {
+      "component": "background-color"
+    },
+    "effect": {
+      "component": "effect-particles"
+    }
+  },
+
+  "loading": {
+    "component": "spinner"
+  },
+
   "profile": {
     "component": "Hero",
 
@@ -237,13 +265,9 @@
     },
 
     "appearance": {
-      "light": {
-        "boxNavbar-backgroundColor": "yellow"
-      },
+      "light": {},
 
-      "dark": {
-        "boxNavbar-backgroundColor": "blue"
-      }
+      "dark": {}
     }
   },
 

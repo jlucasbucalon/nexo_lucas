@@ -331,7 +331,7 @@ function applyAppearance(element, appearance, key) {
 }
 
 // --------------------------------------------------
-// APPLY COMPONENT APPEARANCE
+// APPLY COMPONENT APPEARANCE (LAYOUTS)
 // --------------------------------------------------
 
 export function applyComponentAppearance(
@@ -386,6 +386,72 @@ export function refreshComponentAppearance(element) {
 }
 
 // --------------------------------------------------
+// GET MODELS CONFIG (JSON do cliente)
+// --------------------------------------------------
+
+function getModelsConfig() {
+  const clientConfig = getClientConfig()
+
+  return clientConfig?.models || null
+}
+
+// --------------------------------------------------
+// RESOLVE MODEL APPEARANCE
+// --------------------------------------------------
+
+function resolveModelAppearance(element, modelsConfig) {
+  if (!element || !modelsConfig) {
+    return null
+  }
+
+  const key = element.dataset?.model
+
+  if (!key) {
+    return null
+  }
+
+  const entry = modelsConfig[key]
+
+  if (
+    !isPlainObject(entry) ||
+    !isPlainObject(entry.appearance)
+  ) {
+    return null
+  }
+
+  return entry.appearance
+}
+
+// --------------------------------------------------
+// APPLY MODEL APPEARANCE
+// --------------------------------------------------
+
+export function applyModelAppearance(element) {
+  if (!element) {
+    return
+  }
+
+  const appearance = resolveModelAppearance(
+    element,
+    getModelsConfig()
+  )
+
+  if (!appearance) {
+    return
+  }
+
+  applyAppearance(element, appearance, 'model')
+}
+
+// --------------------------------------------------
+// REFRESH MODEL APPEARANCE
+// --------------------------------------------------
+
+export function refreshModelAppearance(element) {
+  applyModelAppearance(element)
+}
+
+// --------------------------------------------------
 // GET APPEARANCE ELEMENTS
 // --------------------------------------------------
 
@@ -406,17 +472,18 @@ function getAppearanceElements(root = document) {
 
   if (
     root.nodeType === 1 &&
-    root.matches?.('[data-config]')
+    (root.matches?.('[data-config]') ||
+      root.matches?.('[data-model]'))
   ) {
     elements.add(root)
   }
 
   // ------------------------------------------------
-  // LAYOUTS
+  // LAYOUTS + MODELS
   // ------------------------------------------------
 
   root
-    .querySelectorAll('[data-config]')
+    .querySelectorAll('[data-config], [data-model]')
     .forEach((element) => {
       elements.add(element)
     })
@@ -438,7 +505,13 @@ export function refreshAllComponentAppearances(
   const elements = getAppearanceElements(root)
 
   for (const element of elements) {
-    refreshComponentAppearance(element)
+    if (element.hasAttribute('data-config')) {
+      refreshComponentAppearance(element)
+    }
+
+    if (element.hasAttribute('data-model')) {
+      refreshModelAppearance(element)
+    }
   }
 }
 

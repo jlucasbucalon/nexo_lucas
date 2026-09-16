@@ -8,7 +8,14 @@ import {
   setAssetMaps,
 } from '../src/modules/core/utils.js'
 
+import {
+  showLoading,
+  hideLoading,
+} from '../src/modules/core/loading.js'
+
 import { configureSheet } from '../src/modules/core/sheet.js'
+
+import { updateHeadFromMeta } from '../src/modules/router/head.js'
 
 import { createApp } from '../src/modules/lib/index.js'
 
@@ -31,7 +38,6 @@ async function loadClientConfig() {
   }
 
   const pathname = window.location.pathname
-
   const match = pathname.match(/^\/(@[^/]+)/)
 
   if (!match) {
@@ -165,7 +171,6 @@ function normalizeAssets(client, assets = {}) {
 
     iconMap[name] = {
       ...icon,
-
       ...(icon.src && {
         src: `/${client}/constant/icons/${icon.src}`,
       }),
@@ -195,10 +200,17 @@ async function bootstrapClient() {
   }
 
   // ------------------------------------------------
+  // SHOW LOADING
+  // ------------------------------------------------
+
+  showLoading()
+
+  // ------------------------------------------------
   // PREVENT DUPLICATE BOOTSTRAP
   // ------------------------------------------------
 
   if (window.__nexoClientInitialized) {
+    hideLoading()
     return
   }
 
@@ -215,6 +227,8 @@ async function bootstrapClient() {
       '[NEXO] Root da aplicação não encontrado.'
     )
 
+    hideLoading()
+
     return
   }
 
@@ -225,8 +239,15 @@ async function bootstrapClient() {
   const clientConfig = await loadClientConfig()
 
   if (!clientConfig) {
+    hideLoading()
     return
   }
+
+  // ------------------------------------------------
+  // PROFILE META
+  // ------------------------------------------------
+
+  updateHeadFromMeta(clientConfig.meta)
 
   // ------------------------------------------------
   // CLIENT CONFIG
@@ -261,7 +282,7 @@ async function bootstrapClient() {
   // ------------------------------------------------
   // RUNTIME CONFIG
   // ------------------------------------------------
-  //
+
   // Mantém "config" e "models"
   // separados no index.json,
   // mas entrega ambos ao runtime.
@@ -322,6 +343,12 @@ async function bootstrapClient() {
     } catch (error) {
       console.warn('[NEXO] applyAssets falhou:', error)
     }
+
+    // ----------------------------------------------
+    // HIDE LOADING
+    // ----------------------------------------------
+
+    hideLoading()
   }
 
   document.addEventListener(
