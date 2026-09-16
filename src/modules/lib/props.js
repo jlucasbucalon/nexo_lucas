@@ -219,7 +219,6 @@ function resolveAppearance(appearance) {
 
   if (hasLight || hasDark) {
     const theme = getCurrentTheme()
-
     const values = appearance[theme]
 
     if (!isPlainObject(values)) {
@@ -273,7 +272,6 @@ function applyAppearance(element, appearance, key) {
   }
 
   const resolved = resolveAppearance(appearance)
-
   const values = resolved.values || {}
 
   // ------------------------------------------------
@@ -386,7 +384,8 @@ export function refreshComponentAppearance(element) {
 }
 
 // --------------------------------------------------
-// GET MODELS CONFIG (JSON do cliente)
+// GET MODELS CONFIG
+// JSON DO CLIENTE
 // --------------------------------------------------
 
 function getModelsConfig() {
@@ -535,7 +534,6 @@ export function observeComponentThemes() {
         mutation.attributeName === 'data-theme'
       ) {
         themeChanged = true
-
         break
       }
     }

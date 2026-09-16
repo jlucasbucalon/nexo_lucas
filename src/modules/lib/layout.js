@@ -16,7 +16,6 @@ import {
 // --------------------------------------------------
 
 const isBrowser = typeof window !== 'undefined'
-
 const isDOM = isBrowser && typeof document !== 'undefined'
 
 // --------------------------------------------------
@@ -24,9 +23,7 @@ const isDOM = isBrowser && typeof document !== 'undefined'
 // --------------------------------------------------
 
 const loadedStyles = new Set()
-
 const loadedScripts = new Set()
-
 const componentCache = new Map()
 
 // --------------------------------------------------
@@ -146,17 +143,72 @@ function resolveLayoutProps(element) {
 }
 
 // --------------------------------------------------
+// NORMALIZE COMPONENT NAME
+// --------------------------------------------------
+
+function normalizeComponentName(name) {
+  if (typeof name !== 'string' || !name.trim()) {
+    return null
+  }
+
+  const cleanName = name
+    .trim()
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '')
+
+  if (!cleanName) {
+    return null
+  }
+
+  // ----------------------------------------------
+  // CATEGORY/COMPONENT
+  // ----------------------------------------------
+
+  if (cleanName.includes('/')) {
+    const parts = cleanName.split('/').filter(Boolean)
+
+    if (parts.length !== 2) {
+      return null
+    }
+
+    return `${parts[0]}/${parts[1]}`
+  }
+
+  // ----------------------------------------------
+  // CATEGORY-COMPONENT
+  // ----------------------------------------------
+
+  if (cleanName.includes('-')) {
+    const separator = cleanName.indexOf('-')
+
+    const category = cleanName.slice(0, separator).trim()
+
+    const component = cleanName.slice(separator + 1).trim()
+
+    if (!category || !component) {
+      return null
+    }
+
+    return `${category}/${component}`
+  }
+
+  return null
+}
+
+// --------------------------------------------------
 // PATH RESOLVER
 // --------------------------------------------------
 
 function getComponentPath(name) {
-  const parts = String(name).split('/').filter(Boolean)
+  const normalized = normalizeComponentName(name)
 
-  if (parts.length !== 2) {
+  if (!normalized) {
     throw new Error(
       `[NEXO] Nome de componente inválido: ${name}`
     )
   }
+
+  const parts = normalized.split('/').filter(Boolean)
 
   const [category, component] = parts
 
@@ -178,9 +230,7 @@ function setScriptContext(container, props, componentName) {
 
   const previous = {
     container: window.container,
-
     props: window.props,
-
     componentName: window.componentName,
   }
 
@@ -191,6 +241,10 @@ function setScriptContext(container, props, componentName) {
   window.componentName = componentName || ''
 
   return () => {
+    // --------------------------------------------
+    // RESTORE CONTAINER
+    // --------------------------------------------
+
     if (previous.container === undefined) {
       try {
         delete window.container
@@ -201,6 +255,10 @@ function setScriptContext(container, props, componentName) {
       window.container = previous.container
     }
 
+    // --------------------------------------------
+    // RESTORE PROPS
+    // --------------------------------------------
+
     if (previous.props === undefined) {
       try {
         delete window.props
@@ -210,6 +268,10 @@ function setScriptContext(container, props, componentName) {
     } else {
       window.props = previous.props
     }
+
+    // --------------------------------------------
+    // RESTORE COMPONENT NAME
+    // --------------------------------------------
 
     if (previous.componentName === undefined) {
       try {
@@ -240,17 +302,17 @@ function loadStyle(link) {
 
   const href = new URL(rawHref, document.baseURI).href
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // ALREADY LOADED
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (loadedStyles.has(href)) {
     return Promise.resolve()
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // LOAD
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   return new Promise((resolve) => {
     const newLink = document.createElement('link')
@@ -317,17 +379,17 @@ function loadScript(
     ? `${componentName}-${absoluteSrc}`
     : `${componentName}-inline-${index}`
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // ALREADY LOADED
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (loadedScripts.has(id)) {
     return Promise.resolve()
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // SCRIPT CONTEXT
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const restoreContext = setScriptContext(
     container,
@@ -337,9 +399,9 @@ function loadScript(
 
   const el = document.createElement('script')
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // COPY ATTRIBUTES
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   for (const attribute of script.attributes) {
     const name = attribute.name
@@ -351,9 +413,9 @@ function loadScript(
     el.setAttribute(name, attribute.value)
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // EXTERNAL SCRIPT
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (absoluteSrc) {
     return new Promise((resolve) => {
@@ -393,9 +455,9 @@ function loadScript(
     })
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // INLINE SCRIPT
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const source = script.textContent || ''
 
@@ -497,9 +559,9 @@ function getLayoutElements(root) {
 
   const elements = []
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // ROOT
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (
     root.nodeType === 1 &&
@@ -508,9 +570,9 @@ function getLayoutElements(root) {
     elements.push(root)
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // DESCENDANTS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   elements.push(...root.querySelectorAll('[data-config]'))
 
@@ -562,6 +624,159 @@ async function loadChildComponents(container) {
 }
 
 // --------------------------------------------------
+// CREATE PAGE COMPONENT CONTAINER
+// --------------------------------------------------
+
+function createPageComponentContainer(component, index) {
+  if (
+    !component ||
+    typeof component !== 'object' ||
+    Array.isArray(component)
+  ) {
+    return null
+  }
+
+  const componentName = component.component
+
+  if (
+    typeof componentName !== 'string' ||
+    !componentName.trim()
+  ) {
+    console.warn(
+      `[NEXO] Componente da página na posição ${index + 1} não possui um nome válido.`
+    )
+
+    return null
+  }
+
+  const normalized = normalizeComponentName(componentName)
+
+  if (!normalized) {
+    console.warn(
+      `[NEXO] Componente da página "${componentName}" possui um nome inválido.`
+    )
+
+    return null
+  }
+
+  const container = document.createElement('div')
+
+  container.dataset.pageComponent = 'true'
+
+  container.dataset.component = componentName
+
+  container.dataset.componentIndex = String(index)
+
+  container.dataset.componentPath = normalized
+
+  const props =
+    component.props &&
+    typeof component.props === 'object' &&
+    !Array.isArray(component.props)
+      ? {
+          ...component.props,
+        }
+      : {}
+
+  return {
+    container,
+    componentName: normalized,
+    props,
+  }
+}
+
+// --------------------------------------------------
+// CLEAR PAGE COMPONENTS
+// --------------------------------------------------
+
+function clearPageComponents(root) {
+  if (
+    !root ||
+    typeof root.querySelectorAll !== 'function'
+  ) {
+    return
+  }
+
+  const components = root.querySelectorAll(
+    '[data-page-component="true"]'
+  )
+
+  components.forEach((element) => {
+    element.remove()
+  })
+}
+
+// --------------------------------------------------
+// LOAD PAGE COMPONENTS
+// --------------------------------------------------
+
+async function loadPageComponents(root, page) {
+  if (
+    !isDOM ||
+    !root ||
+    !page ||
+    typeof page !== 'object'
+  ) {
+    return
+  }
+
+  const components = Array.isArray(page.components)
+    ? page.components
+    : []
+
+  // ----------------------------------------------
+  // CLEAR PREVIOUS PAGE
+  // ----------------------------------------------
+
+  clearPageComponents(root)
+
+  if (!components.length) {
+    return
+  }
+
+  // ----------------------------------------------
+  // LOAD COMPONENTS
+  // ----------------------------------------------
+
+  for (let index = 0; index < components.length; index++) {
+    const definition = createPageComponentContainer(
+      components[index],
+      index
+    )
+
+    if (!definition) {
+      continue
+    }
+
+    const { container, componentName, props } = definition
+
+    // --------------------------------------------
+    // INSERT COMPONENT CONTAINER
+    // --------------------------------------------
+
+    root.appendChild(container)
+
+    // --------------------------------------------
+    // LOAD COMPONENT
+    // --------------------------------------------
+
+    const loading = loadLayouts(
+      componentName,
+      container,
+      props
+    )
+
+    componentLoading.set(container, loading)
+
+    try {
+      await loading
+    } finally {
+      componentLoading.delete(container)
+    }
+  }
+}
+
+// --------------------------------------------------
 // CORE LOADER
 // --------------------------------------------------
 
@@ -578,15 +793,15 @@ export async function loadLayouts(
     return false
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // INITIALIZE PROPS SYSTEM
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   initComponentProps()
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // NORMALIZE PROPS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (
     !props ||
@@ -596,27 +811,42 @@ export async function loadLayouts(
     props = {}
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // PREVENT DUPLICATE INITIALIZATION
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (container.dataset?.initialized === 'true') {
     return true
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
+  // NORMALIZE COMPONENT NAME
+  // ----------------------------------------------
+
+  const normalizedName =
+    normalizeComponentName(componentName)
+
+  if (!normalizedName) {
+    console.error(
+      `[NEXO] Nome de componente inválido: ${componentName}`
+    )
+
+    return false
+  }
+
+  // ----------------------------------------------
   // CACHE
-  // ------------------------------------------------
+  // ----------------------------------------------
 
-  let html = componentCache.get(componentName)
+  let html = componentCache.get(normalizedName)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // FETCH COMPONENT
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (!html) {
     try {
-      const componentUrl = getComponentPath(componentName)
+      const componentUrl = getComponentPath(normalizedName)
 
       console.log(
         `[NEXO] Carregando componente: ${componentUrl}`
@@ -628,13 +858,13 @@ export async function loadLayouts(
 
       if (!response.ok) {
         throw new Error(
-          `Componente ${componentName} não encontrado`
+          `Componente ${normalizedName} não encontrado`
         )
       }
 
       html = await response.text()
 
-      componentCache.set(componentName, html)
+      componentCache.set(normalizedName, html)
     } catch (error) {
       container.innerHTML = `
         <p style="color:red">
@@ -652,23 +882,23 @@ export async function loadLayouts(
     }
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // RENDER PROPS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const renderedHTML = renderProps(html, props)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // PARSE HTML
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const temp = document.createElement('div')
 
   temp.innerHTML = renderedHTML
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // STYLES
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const styleLinks = Array.from(
     temp.querySelectorAll('link[rel="stylesheet"]')
@@ -676,9 +906,9 @@ export async function loadLayouts(
 
   await Promise.all(styleLinks.map(loadStyle))
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // SCRIPTS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const scripts = Array.from(
     temp.querySelectorAll('script')
@@ -688,59 +918,59 @@ export async function loadLayouts(
     script.remove()
   })
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // INSERT HTML
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   container.innerHTML = temp.innerHTML
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // APPLY COMPONENT APPEARANCE
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   applyComponentStyles(container, props)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // LOAD CHILD LAYOUTS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   await loadChildComponents(container)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // APPLY INITIAL ASSETS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   await applyComponentAssets(container)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // EXECUTE COMPONENT SCRIPTS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   for (let index = 0; index < scripts.length; index++) {
     await loadScript(
       scripts[index],
-      componentName,
+      normalizedName,
       index,
       container,
       props
     )
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // LOAD MODELS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   await loadComponentModels(container)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // APPLY ASSETS AGAIN
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   await applyComponentAssets(container)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // OPTIONAL GLOBAL HOOK
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (typeof window.setupInstallButton === 'function') {
     try {
@@ -753,25 +983,22 @@ export async function loadLayouts(
     }
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // MARK AS INITIALIZED
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   container.dataset.initialized = 'true'
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // COMPONENT EVENT
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   container.dispatchEvent(
     new CustomEvent('component:loaded', {
       bubbles: true,
-
       detail: {
-        name: componentName,
-
+        name: normalizedName,
         root: container,
-
         props,
       },
     })
@@ -784,7 +1011,10 @@ export async function loadLayouts(
 // COMPONENT LOADER
 // --------------------------------------------------
 
-export async function loadAllComponents(root = document) {
+export async function loadAllComponents(
+  root = document,
+  page = null
+) {
   if (!isDOM) {
     return
   }
@@ -796,21 +1026,31 @@ export async function loadAllComponents(root = document) {
     return
   }
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // INITIALIZE PROPS SYSTEM
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   initComponentProps()
 
-  // ------------------------------------------------
+  // ----------------------------------------------
+  // LOAD PAGE COMPONENTS
+  // ----------------------------------------------
+
+  if (page) {
+    await loadPageComponents(root, page)
+  } else {
+    clearPageComponents(root)
+  }
+
+  // ----------------------------------------------
   // COLLECT LAYOUTS
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   const elements = getLayoutElements(root)
 
-  // ------------------------------------------------
+  // ----------------------------------------------
   // LOAD
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   for (const element of elements) {
     if (element.dataset.initialized === 'true') {
@@ -821,9 +1061,9 @@ export async function loadAllComponents(root = document) {
       continue
     }
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // RESOLVE COMPONENT
-    // ----------------------------------------------
+    // --------------------------------------------
 
     const name = resolveComponentName(element)
 
@@ -831,15 +1071,15 @@ export async function loadAllComponents(root = document) {
       continue
     }
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // PROPS
-    // ----------------------------------------------
+    // --------------------------------------------
 
     const props = resolveLayoutProps(element)
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // LOCK
-    // ----------------------------------------------
+    // --------------------------------------------
 
     const loading = loadLayouts(name, element, props)
 

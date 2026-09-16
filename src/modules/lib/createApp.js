@@ -63,6 +63,8 @@ export function createApp({
           event.detail?.container ||
           root
 
+        const page = event.detail?.page || null
+
         // ------------------------------------------
         // MODELS
         // ------------------------------------------
@@ -78,7 +80,7 @@ export function createApp({
         // ------------------------------------------
 
         try {
-          await loadAllComponents(container)
+          await loadAllComponents(container, page)
         } catch (error) {
           console.warn(
             '[NEXO] loadAllComponents falhou:',
@@ -94,7 +96,9 @@ export function createApp({
           new CustomEvent('spa:ready', {
             detail: {
               client,
-              page: event.detail?.page || null,
+
+              page,
+
               root: container,
             },
           })

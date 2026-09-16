@@ -23,7 +23,6 @@ const port = process.env.PORT || 3000
 // ==================================================
 
 const clientDir = path.join(__dirname, 'client')
-
 const srcDir = path.join(__dirname, 'src')
 
 // ==================================================
@@ -42,7 +41,14 @@ app.use(
 // ==================================================
 
 app.get('/global.css', (req, res) => {
-  res.sendFile(path.join(clientDir, 'global.css'))
+  const file = path.join(clientDir, 'global.css')
+
+  if (!fs.existsSync(file)) {
+    res.status(404).send('global.css não encontrado')
+    return
+  }
+
+  res.sendFile(file)
 })
 
 // ==================================================
@@ -68,7 +74,15 @@ app.get('/@:username', (req, res) => {
   // TEMPLATE CENTRAL
   // ----------------------------------------------
 
-  res.sendFile(path.join(clientDir, 'index.html'))
+  const indexFile = path.join(clientDir, 'index.html')
+
+  if (!fs.existsSync(indexFile)) {
+    res.status(500).send('Template central não encontrado')
+
+    return
+  }
+
+  res.sendFile(indexFile)
 })
 
 // ==================================================
@@ -79,6 +93,20 @@ app.use('/@:username', (req, res, next) => {
   const { username } = req.params
 
   const clientPath = path.join(clientDir, `@${username}`)
+
+  // --------------------------------------------
+  // VERIFICA CLIENTE
+  // --------------------------------------------
+
+  if (!fs.existsSync(clientPath)) {
+    res.status(404).send('Cliente não encontrado')
+
+    return
+  }
+
+  // --------------------------------------------
+  // SERVE ARQUIVO
+  // --------------------------------------------
 
   express.static(clientPath, {
     index: false,
@@ -101,7 +129,15 @@ app.use(
 // ==================================================
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'))
+  const indexFile = path.join(__dirname, 'index.html')
+
+  if (!fs.existsSync(indexFile)) {
+    res.status(500).send('index.html não encontrado')
+
+    return
+  }
+
+  res.sendFile(indexFile)
 })
 
 // ==================================================

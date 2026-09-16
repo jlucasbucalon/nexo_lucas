@@ -57,51 +57,38 @@ nexo_teste/
 
 nexo_teste/
 ├── client/
-│   │── index.html    -> index principal dos clientes
+│   │── pages/
+│   │      ├── about.html
+│   │      ├── work.html
+│   │      ├── hobby.html
+│   │      └── gallery.html
+│   │
+│   │── index.html
 │   │── global.css
 │   │── main.js
+│   │
 │   │── @cliente1/
 │   │    │── constant/
 │   │    │     ├── images/
 │   │    │     └── icons/
-│   │    │
-│   │    │── css/
-│   │    │     ├── index.css
-│   │    │     └── custom.css
-│   │    │
-│   │    │── pages/
-│   │    │      ├── home.html
-│   │    │      ├── about.html
-│   │    │      ├── work.html
-│   │    │      ├── hobby.html
-│   │    │      └── gallery.html
-│   │    │
-│   │    └─── index.json -> onde vai ter os caminhos e configurações
+│   │    ├── home.html
+│   │    └─── index.json
+│   │
 │   └── @cliente2/
 │        │── constant/
 │        │     ├── images/
 │        │     └── icons/
-│        │
-│        │── css/
-│        │     ├── index.css
-│        │     └── custom.css
-│        │
-│        │── pages/
-│        │      ├── home.html
-│        │      ├── about.html
-│        │      ├── work.html
-│        │      ├── hobby.html
-│        │      └── gallery.html
-│        │
-│        └─── index.json -> onde vai ter os caminhos e configurações
+│        ├── home.html
+│        └─── index.json
 │
 │
 ├── src/
 │   ├── components/
 │   └── modules/
+│
 ├── .env.local
 ├── .gitignore
-├── index.html    -> index principal do nexo
+├── index.html
 ├── server.js
 ├── package-lock.json
 ├── package.json

@@ -3,9 +3,7 @@
 // --------------------------------------------------
 
 import { applyFade } from '../core/sheet.js'
-
 import { reexecuteScripts } from './scripts.js'
-
 import { updateHeadFromHTML } from './head.js'
 
 // --------------------------------------------------
@@ -13,13 +11,21 @@ import { updateHeadFromHTML } from './head.js'
 // --------------------------------------------------
 
 function resolvePageUrl(client, pagePath) {
-  if (!client) {
+  // ----------------------------------------------
+  // VALIDATE CLIENT
+  // ----------------------------------------------
+
+  if (typeof client !== 'string' || !client.trim()) {
     throw new Error(
       '[SPA] Cliente da aplicação não informado.'
     )
   }
 
-  if (!pagePath) {
+  // ----------------------------------------------
+  // VALIDATE PAGE PATH
+  // ----------------------------------------------
+
+  if (typeof pagePath !== 'string' || !pagePath.trim()) {
     throw new Error(
       '[SPA] Caminho da página não informado.'
     )
@@ -29,19 +35,11 @@ function resolvePageUrl(client, pagePath) {
   // CLIENT
   // ----------------------------------------------
 
-  let cleanClient = String(client).trim()
-
-  // ----------------------------------------------
-  // REMOVE LEADING / TRAILING SLASHES
-  // ----------------------------------------------
+  let cleanClient = client.trim()
 
   cleanClient = cleanClient
     .replace(/^\/+/, '')
     .replace(/\/+$/, '')
-
-  // ----------------------------------------------
-  // VALIDATE CLIENT
-  // ----------------------------------------------
 
   if (!cleanClient.startsWith('@')) {
     throw new Error(`[SPA] Cliente inválido: ${client}`)
@@ -51,14 +49,14 @@ function resolvePageUrl(client, pagePath) {
   // PAGE PATH
   // ----------------------------------------------
 
-  let cleanPath = String(pagePath).trim()
+  let cleanPath = pagePath.trim()
 
   // ----------------------------------------------
-  // REMOVE .html
+  // REMOVE HASH
   // ----------------------------------------------
 
-  if (cleanPath.endsWith('.html')) {
-    cleanPath = cleanPath.slice(0, -'.html'.length)
+  if (cleanPath.startsWith('#')) {
+    cleanPath = cleanPath.slice(1)
   }
 
   // ----------------------------------------------
@@ -66,6 +64,30 @@ function resolvePageUrl(client, pagePath) {
   // ----------------------------------------------
 
   cleanPath = cleanPath.replace(/^\/+/, '')
+
+  // ----------------------------------------------
+  // REMOVE PAGES DIRECTORY
+  // ----------------------------------------------
+
+  if (cleanPath.startsWith('pages/')) {
+    cleanPath = cleanPath.slice('pages/'.length)
+  }
+
+  // ----------------------------------------------
+  // REMOVE LEGACY PAGE DIRECTORY
+  // ----------------------------------------------
+
+  if (cleanPath.startsWith('page/')) {
+    cleanPath = cleanPath.slice('page/'.length)
+  }
+
+  // ----------------------------------------------
+  // REMOVE .HTML
+  // ----------------------------------------------
+
+  if (cleanPath.endsWith('.html')) {
+    cleanPath = cleanPath.slice(0, -'.html'.length)
+  }
 
   // ----------------------------------------------
   // VALIDATE PAGE PATH
@@ -76,11 +98,22 @@ function resolvePageUrl(client, pagePath) {
   }
 
   // ----------------------------------------------
-  // BUILD URL
+  // HOME
+  // ----------------------------------------------
+
+  if (cleanPath === 'home') {
+    return new URL(
+      `/${cleanClient}/home.html`,
+      document.baseURI
+    ).href
+  }
+
+  // ----------------------------------------------
+  // SHARED PAGES
   // ----------------------------------------------
 
   return new URL(
-    `/${cleanClient}/${cleanPath}.html`,
+    `/client/pages/${cleanPath}.html`,
     document.baseURI
   ).href
 }
@@ -89,27 +122,32 @@ function resolvePageUrl(client, pagePath) {
 // LOAD PAGE
 // --------------------------------------------------
 
-export async function loadPage({ client, pagePath, root }) {
-  // ------------------------------------------------
+export async function loadPage({
+  client,
+  pagePath,
+  root,
+  page = null,
+}) {
+  // ----------------------------------------------
   // VALIDATION
-  // ------------------------------------------------
+  // ----------------------------------------------
 
   if (typeof document === 'undefined' || !root) {
     return false
   }
 
   try {
-    // ----------------------------------------------
+    // --------------------------------------------
     // PAGE URL
-    // ----------------------------------------------
+    // --------------------------------------------
 
     const pageUrl = resolvePageUrl(client, pagePath)
 
     console.log('[SPA] Carregando página:', pageUrl)
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // FETCH
-    // ----------------------------------------------
+    // --------------------------------------------
 
     const res = await fetch(pageUrl, {
       cache: 'no-store',
@@ -121,59 +159,66 @@ export async function loadPage({ client, pagePath, root }) {
       )
     }
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // HTML
-    // ----------------------------------------------
+    // --------------------------------------------
 
     const html = await res.text()
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // UPDATE HEAD
-    // ----------------------------------------------
+    // --------------------------------------------
 
     updateHeadFromHTML(html, pagePath)
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // RENDER
-    // ----------------------------------------------
+    // --------------------------------------------
 
     await applyFade(root, async () => {
-      // ------------------------------------------
+      // ----------------------------------------
       // INSERT HTML
-      // ------------------------------------------
+      // ----------------------------------------
 
       root.innerHTML = html
 
-      // ------------------------------------------
+      // ----------------------------------------
       // EXECUTE PAGE SCRIPTS
-      // ------------------------------------------
+      // ----------------------------------------
 
       await reexecuteScripts(root)
 
-      // ------------------------------------------
+      // ----------------------------------------
       // PAGE LOADED EVENT
-      // ------------------------------------------
+      // ----------------------------------------
 
       document.dispatchEvent(
         new CustomEvent('spa:pageLoaded', {
           detail: {
             client,
             page: pagePath,
+
             root,
+
+            // --------------------------------
+            // NORMALIZED PAGE
+            // --------------------------------
+
+            page,
           },
         })
       )
     })
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // SUCCESS
-    // ----------------------------------------------
+    // --------------------------------------------
 
     return true
   } catch (err) {
-    // ----------------------------------------------
+    // --------------------------------------------
     // ERROR
-    // ----------------------------------------------
+    // --------------------------------------------
 
     console.error('[SPA] Erro ao carregar página:', err)
 
@@ -183,9 +228,9 @@ export async function loadPage({ client, pagePath, root }) {
       </p>
     `
 
-    // ----------------------------------------------
+    // --------------------------------------------
     // PAGE ERROR EVENT
-    // ----------------------------------------------
+    // --------------------------------------------
 
     document.dispatchEvent(
       new CustomEvent('spa:error', {

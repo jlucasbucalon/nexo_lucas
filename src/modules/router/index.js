@@ -3,7 +3,6 @@
 // --------------------------------------------------
 
 import { loadPage } from './loader.js'
-
 import { handleNavigation } from './navigation.js'
 
 // --------------------------------------------------
@@ -29,7 +28,6 @@ export function createRouter({
       console.error(
         '[SPA] Root da aplicação não encontrado.'
       )
-
       return
     }
 
@@ -37,7 +35,6 @@ export function createRouter({
       console.error(
         '[SPA] Cliente da aplicação não informado.'
       )
-
       return
     }
 
@@ -86,11 +83,11 @@ export function createRouter({
     // ----------------------------------------------
 
     const children = childrens.find((route) => {
-      if (!route?.path) {
+      if (!route || typeof route.href !== 'string') {
         return false
       }
 
-      return route.path.test(path)
+      return route.href === hash
     })
 
     // ----------------------------------------------
@@ -123,17 +120,20 @@ export function createRouter({
     }
 
     // ----------------------------------------------
-    // VALIDATE PAGE
+    // VALIDATE HREF
     // ----------------------------------------------
 
-    if (!children.page) {
+    if (
+      typeof children.href !== 'string' ||
+      !children.href.trim()
+    ) {
       console.error(
-        `[SPA] A rota "${path}" não possui uma página definida.`
+        `[SPA] A rota "${path}" não possui um href definido.`
       )
 
       root.innerHTML = `
         <p>
-          Erro: página da rota não definida.
+          Erro: rota não definida.
         </p>
       `
 
@@ -144,7 +144,7 @@ export function createRouter({
             page: path,
             root,
             error: new Error(
-              `A rota "${path}" não possui uma página definida.`
+              `A rota "${path}" não possui um href definido.`
             ),
           },
         })
@@ -154,14 +154,27 @@ export function createRouter({
     }
 
     // ----------------------------------------------
+    // PAGE PATH
+    // ----------------------------------------------
+
+    const pagePath =
+      path === '/home' ? '/pages/home' : `/pages${path}`
+
+    // ----------------------------------------------
     // LOAD PAGE
     // ----------------------------------------------
 
     try {
       await loadPage({
-        pagePath: children.page,
+        pagePath,
         root,
         client,
+
+        // ------------------------------------------
+        // PAGE CONFIGURATION
+        // ------------------------------------------
+
+        page: children,
       })
     } catch (error) {
       console.error('[SPA] Erro ao carregar página:', error)
@@ -170,7 +183,7 @@ export function createRouter({
         new CustomEvent('spa:error', {
           detail: {
             client,
-            page: children.page,
+            page: pagePath,
             root,
             error,
           },

@@ -53,8 +53,13 @@ function normalizeModelName(modelName) {
 // Regra: o ÚLTIMO segmento após o hífen é o nome do
 // model, o resto é a categoria.
 //
-// "background-particles" -> category: "background", modelName: "particles"
-// "back-color"           -> category: "back",        modelName: "color"
+// "background-particles"
+// -> category: "background"
+// -> modelName: "particles"
+//
+// "back-color"
+// -> category: "back"
+// -> modelName: "color"
 //
 // Usada tanto para resolver a string "component" do
 // JSON (padrão data-model) quanto para resolver o
@@ -364,7 +369,10 @@ function initializeModel(
 }
 
 // --------------------------------------------------
-// GET MODELS CONFIG (JSON do cliente)
+// GET MODELS CONFIG
+// --------------------------------------------------
+//
+// Configuração dos models vem do JSON do cliente.
 // --------------------------------------------------
 
 function getModelsConfig() {
@@ -376,12 +384,21 @@ function getModelsConfig() {
 }
 
 // --------------------------------------------------
-// RESOLVE MODEL ENTRY (padrão data-model)
+// RESOLVE MODEL ENTRY
 // --------------------------------------------------
 //
-// Recebe a KEY usada em data-model (ex: "background")
-// e resolve para { category, modelName } a partir do
-// campo "component" no JSON do cliente.
+// Recebe a KEY usada em data-model:
+//
+// data-model="background"
+//
+// E resolve:
+//
+// models.background.component
+//
+// Exemplo:
+//
+// "background-particles"
+// -> background / particles
 // --------------------------------------------------
 
 function resolveModelEntry(key) {
@@ -395,7 +412,7 @@ function resolveModelEntry(key) {
 }
 
 // --------------------------------------------------
-// FIND DATA-MODEL ELEMENTS (padrão novo, via JSON)
+// FIND DATA-MODEL ELEMENTS
 // --------------------------------------------------
 
 function findDataModelElements(root) {
@@ -425,7 +442,12 @@ function findDataModelElements(root) {
 }
 
 // --------------------------------------------------
-// FIND CLASS MODEL ELEMENTS (padrão legado, marcador .model)
+// FIND CLASS MODEL ELEMENTS
+// --------------------------------------------------
+//
+// Padrão legado:
+//
+// class="model background-particles"
 // --------------------------------------------------
 
 function findClassModelElements(root) {
@@ -453,7 +475,7 @@ function findClassModelElements(root) {
 }
 
 // --------------------------------------------------
-// ADD MODEL (helper de agregação por categoria/nome)
+// ADD MODEL
 // --------------------------------------------------
 
 function addModel(models, resolved, element) {
@@ -473,14 +495,14 @@ function addModel(models, resolved, element) {
 }
 
 // --------------------------------------------------
-// FIND MODELS (une os dois padrões)
+// FIND MODELS
 // --------------------------------------------------
 
 function findModels(root) {
   const models = new Map()
 
   // ------------------------------------------------
-  // PADRÃO NOVO: data-model (tem PRIORIDADE)
+  // DATA-MODEL
   // ------------------------------------------------
 
   const dataModelElements = findDataModelElements(root)
@@ -502,15 +524,9 @@ function findModels(root) {
       continue
     }
 
-    // ------------------------------------------------
-    // GARANTE COMPATIBILIDADE COM CSS BASEADO EM CLASSE
-    // ------------------------------------------------
-    //
-    // Componentes legados usam a própria classe como
-    // seletor CSS (ex: .background-particles). Elementos
-    // resolvidos via data-model não têm essa classe por
-    // padrão, então ela é injetada aqui.
-    // ------------------------------------------------
+    // ----------------------------------------------
+    // CSS COMPATIBILITY
+    // ----------------------------------------------
 
     const cssClassName = `${resolved.category}-${resolved.modelName}`
 
@@ -522,11 +538,7 @@ function findModels(root) {
   }
 
   // ------------------------------------------------
-  // PADRÃO LEGADO: class="model categoria-nome"
-  // ------------------------------------------------
-  //
-  // Se o elemento já tem data-model, ignora a classe
-  // para evitar resolução ambígua no mesmo elemento.
+  // LEGACY CLASS
   // ------------------------------------------------
 
   const classModelElements = findClassModelElements(root)
@@ -566,18 +578,13 @@ export async function loadModels(root = document) {
   }
 
   // ------------------------------------------------
-  // GARANTE OBSERVER DE TEMA ATIVO
+  // PROPS / THEME OBSERVER
   // ------------------------------------------------
 
   initProps()
 
   // ------------------------------------------------
   // APPEARANCE
-  // ------------------------------------------------
-  //
-  // Só se aplica a elementos data-model, porque só
-  // eles têm uma key de JSON para buscar "appearance".
-  // Elementos do padrão de classe não recebem appearance.
   // ------------------------------------------------
 
   const dataModelElements = findDataModelElements(root)
@@ -594,7 +601,7 @@ export async function loadModels(root = document) {
   }
 
   // ------------------------------------------------
-  // CSS + JS (ambos os padrões)
+  // FIND MODELS
   // ------------------------------------------------
 
   const models = findModels(root)
@@ -602,6 +609,10 @@ export async function loadModels(root = document) {
   if (!models.length) {
     return
   }
+
+  // ------------------------------------------------
+  // LOAD CSS
+  // ------------------------------------------------
 
   await Promise.all(
     models.map(async ({ category, modelName }) => {
@@ -615,6 +626,10 @@ export async function loadModels(root = document) {
       }
     })
   )
+
+  // ------------------------------------------------
+  // LOAD JS
+  // ------------------------------------------------
 
   await Promise.all(
     models.map(

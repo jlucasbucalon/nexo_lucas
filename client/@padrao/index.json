@@ -208,7 +208,24 @@
           "href": "#/home",
           "tooltip": "Home",
           "icon": "home",
-          "navigation": "page"
+          "navigation": "page",
+          "position": 1,
+          "components": [
+            {
+              "component": "title/title",
+              "props": {
+                "nameTitle": "Home",
+                "userTitle": "@modelopadrão"
+              }
+            },
+
+            {
+              "component": "profile/hero",
+              "props": {
+                "imageHero": "foto"
+              }
+            }
+          ]
         },
 
         {
@@ -216,7 +233,8 @@
           "href": "#/about",
           "tooltip": "Sobre",
           "icon": "about",
-          "navigation": "page"
+          "navigation": "page",
+          "position": 2
         },
 
         {
@@ -224,7 +242,8 @@
           "href": "#/work",
           "tooltip": "Trabalhos",
           "icon": "work",
-          "navigation": "page"
+          "navigation": "page",
+          "position": 3
         },
 
         {
@@ -232,7 +251,8 @@
           "style": "button-theme",
           "iconSun": "sun",
           "iconMoon": "moon",
-          "tooltip": "Trocar de Tema"
+          "tooltip": "Trocar de Tema",
+          "position": 4
         },
 
         {
@@ -240,7 +260,8 @@
           "href": "#/hobby",
           "tooltip": "Hobbies",
           "icon": "hobby",
-          "navigation": "page"
+          "navigation": "page",
+          "position": 5
         },
 
         {
@@ -248,7 +269,8 @@
           "href": "#/gallery",
           "tooltip": "Galeria",
           "icon": "gallery",
-          "navigation": "page"
+          "navigation": "page",
+          "position": 6
         },
 
         {
@@ -259,7 +281,8 @@
           "tooltipUp": "Subir",
           "iconDown": "footer",
           "iconUp": "header",
-          "navigation": "move"
+          "navigation": "move",
+          "position": 7
         }
       ]
     },
