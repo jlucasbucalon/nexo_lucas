@@ -36,3 +36,6 @@
     <li>E sera implementado APIs de escalabilidade e segurança.</li>
     <li>E terá vinculação com canais de venda, midias e outros serviços.</li>
     </ul>
+# nexo_lucas
+# nexo_lucas
+# nexo_lucas

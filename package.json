@@ -2,7 +2,7 @@
   "name": "ssr-project",
   "type": "module",
   "version": "1.0.0",
-  "main": "server/server.js",
+  "main": "server.js",
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js"

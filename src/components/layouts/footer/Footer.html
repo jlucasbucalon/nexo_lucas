@@ -1,0 +1,227 @@
+<style>
+  :root {
+    /* FOOTER */
+
+    --Footer-margin: 0 0 0 0;
+
+    /* TOOLTIP */
+
+    --Footer-tooltipoffset: -35px;
+
+    /* ICON */
+
+    --FooterIcon-width: 2.7rem;
+    --FooterIcon-height: 2.7rem;
+    --FooterIcon-color: #000;
+
+    /* LINK */
+
+    --aFooter-padding: 10px;
+    --aFooter-backgroundColor: white;
+    --aFooter-borderRadius: 100%;
+    --aFooter-boxShadow: none;
+    --aFooter-hover: #696969;
+
+    /* COPY */
+
+    --copyFooter-textColor: #000;
+    --copyFooter-padding: 100px 0;
+
+    /* TOOLTIP */
+
+    --tooltip-offset: var(--tooltip-top);
+    --tooltip-arrow-position: var(--tooltip-arrow-bottom);
+  }
+
+  html[data-theme='dark'] {
+    --FooterIcon-color: #fff;
+
+    --aFooter-backgroundColor: #000;
+
+    --copyFooter-textColor: #fff;
+
+    --aFooter-hover: #696969;
+  }
+
+  #footer {
+    width: 100%;
+    margin: var(--Footer-margin);
+  }
+
+  #footer br {
+    display: none;
+  }
+
+  #footer a[data-tooltip] {
+    --tooltip-offset: var(--Footer-tooltipoffset);
+  }
+
+  #footer my-icon {
+    width: var(--FooterIcon-width);
+    height: var(--FooterIcon-height);
+    color: var(--FooterIcon-color);
+  }
+
+  #footer .icons {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(50px, 1fr)
+    );
+  }
+
+  #footer .icons a {
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--aFooter-backgroundColor);
+    border-radius: var(--aFooter-borderRadius);
+    padding: var(--aFooter-padding);
+    box-shadow: var(--aFooter-boxShadow);
+  }
+
+  #footer i {
+    flex-wrap: wrap;
+    padding: var(--copyFooter-padding);
+    align-items: center;
+    width: 100%;
+    display: block;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-transform: uppercase;
+    color: var(--copyFooter-textColor);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    #footer a:hover my-icon {
+      color: var(--aFooter-hover);
+    }
+
+    #footer a:hover {
+      transform: scale(1.08) translate3d(0, 0, 0);
+    }
+  }
+
+  @media (max-width: 600px),
+    (max-width: 926px) and (orientation: landscape) {
+    #footer br {
+      display: block;
+    }
+
+    #footer .icons {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 50px;
+    }
+  }
+</style>
+
+<section id="footer">
+  <div class="icons"></div>
+
+  <i></i>
+</section>
+
+<script>
+  function createFooterLink(item) {
+    const a = document.createElement('a')
+
+    if (item.style) {
+      a.classList.add(item.style)
+    }
+
+    if (item.href) {
+      a.href = item.href
+    }
+
+    if (item.target) {
+      a.target = item.target
+    }
+
+    if (item.tooltip) {
+      a.dataset.tooltip = item.tooltip
+    }
+
+    if (item.icon) {
+      const icon = document.createElement('my-icon')
+
+      icon.dataset.icon = item.icon
+
+      a.appendChild(icon)
+    }
+
+    return a
+  }
+
+  function createFooterItem(item) {
+    if (!item || typeof item !== 'object') {
+      return null
+    }
+
+    switch (item.type) {
+      case 'link':
+        return createFooterLink(item)
+
+      default:
+        console.warn(
+          '[Footer] Tipo de item desconhecido:',
+          item.type
+        )
+
+        return null
+    }
+  }
+
+  function setupFooter(container, props) {
+    if (!container || !props) {
+      return
+    }
+
+    const footer = container.querySelector('#footer')
+
+    if (!footer) {
+      return
+    }
+
+    const iconsContainer = footer.querySelector('.icons')
+
+    if (!iconsContainer) {
+      return
+    }
+
+    const copy = footer.querySelector('i')
+
+    if (Array.isArray(props.items)) {
+      iconsContainer.innerHTML = ''
+
+      props.items.forEach((item) => {
+        const element = createFooterItem(item)
+
+        if (element) {
+          iconsContainer.appendChild(element)
+        }
+      })
+    }
+
+    if (Array.isArray(props.copy)) {
+      copy.innerHTML = ''
+
+      props.copy.forEach((item, index) => {
+        if (!item) {
+          return
+        }
+
+        if (index > 0) {
+          copy.appendChild(document.createElement('br'))
+        }
+
+        copy.appendChild(document.createTextNode(item))
+      })
+    }
+  }
+
+  setupFooter(container, props)
+</script>

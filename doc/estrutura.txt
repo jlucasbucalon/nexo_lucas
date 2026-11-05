@@ -1,0 +1,96 @@
+nexo_teste/
+├── client/
+│   │── global.css
+│   │── main.js
+│   │── @cliente1/
+│   │    │── constant/
+│   │    │     ├── images/
+│   │    │     └── icons/
+│   │    │
+│   │    │── css/
+│   │    │     ├── index.css
+│   │    │     └── custom.css
+│   │    │
+│   │    │── pages/
+│   │    │      ├── home.html
+│   │    │      ├── about.html
+│   │    │      ├── work.html
+│   │    │      ├── hobby.html
+│   │    │      └── gallery.html
+│   │    │
+│   │    │── index.html
+│   │    └─── index.js
+│   └── @cliente2/
+│        │── constant/
+│        │     ├── images/
+│        │     └── icons/
+│        │
+│        │── css/
+│        │     ├── index.css
+│        │     └── custom.css
+│        │
+│        │── pages/
+│        │      ├── home.html
+│        │      ├── about.html
+│        │      ├── work.html
+│        │      ├── hobby.html
+│        │      └── gallery.html
+│        │
+│        ├── index.html
+│        └─── index.js
+│
+│
+├── src/
+│   ├── components/
+│   └── modules/
+├── .env.local
+├── .gitignore
+├── index.html
+├── server.js
+├── package-lock.json
+├── package.json
+├── vercel.json
+└─── README.md
+
+
+==================================================================================================================
+
+nexo_teste/
+├── client/
+│   │── pages/
+│   │      ├── about.html
+│   │      ├── work.html
+│   │      ├── hobby.html
+│   │      └── gallery.html
+│   │
+│   │── index.html
+│   │── global.css
+│   │── main.js
+│   │
+│   │── @cliente1/
+│   │    │── constant/
+│   │    │     ├── images/
+│   │    │     └── icons/
+│   │    ├── home.html
+│   │    └─── index.json
+│   │
+│   └── @cliente2/
+│        │── constant/
+│        │     ├── images/
+│        │     └── icons/
+│        ├── home.html
+│        └─── index.json
+│
+│
+├── src/
+│   ├── components/
+│   └── modules/
+│
+├── .env.local
+├── .gitignore
+├── index.html
+├── server.js
+├── package-lock.json
+├── package.json
+├── vercel.json
+└─── README.md

@@ -1,0 +1,11 @@
+:root {
+  --bg-color: #696969;
+}
+
+html[data-theme='dark'] {
+  --bg-color: #1e1e1e;
+}
+
+body::before {
+  background-color: var(--bg-color);
+}

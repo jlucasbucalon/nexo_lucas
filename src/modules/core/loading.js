@@ -1,13 +1,20 @@
+<<<<<<< HEAD
 // ==================================================
 // NEXO USER
 // LOADING
 // ==================================================
 
+=======
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3
 // --------------------------------------------------
 // STATE
 // --------------------------------------------------
 
 let loadingConfigured = false
+<<<<<<< HEAD
+=======
+
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3
 let loadingVisible = false
 
 // --------------------------------------------------
@@ -19,7 +26,11 @@ export function configureLoading() {
 }
 
 // --------------------------------------------------
+<<<<<<< HEAD
 // ELEMENTS
+=======
+// ELEMENT
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3
 // --------------------------------------------------
 
 function getLoadingElement() {
@@ -30,6 +41,7 @@ function getLoadingElement() {
   return document.getElementById('nexo-loading')
 }
 
+<<<<<<< HEAD
 export function getSpinnerElement() {
   const loading = getLoadingElement()
 
@@ -40,6 +52,8 @@ export function getSpinnerElement() {
   return loading.querySelector('[data-component="spinner"]')
 }
 
+=======
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3
 // --------------------------------------------------
 // SHOW
 // --------------------------------------------------
@@ -54,6 +68,10 @@ export function showLoading() {
   loadingVisible = true
 
   loading.removeAttribute('aria-hidden')
+<<<<<<< HEAD
+=======
+
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3
   loading.classList.remove('is-hidden')
 }
 
@@ -71,6 +89,10 @@ export function hideLoading() {
   loadingVisible = false
 
   loading.classList.add('is-hidden')
+<<<<<<< HEAD
+=======
+
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3
   loading.setAttribute('aria-hidden', 'true')
 }
 
@@ -89,6 +111,7 @@ export function isLoadingVisible() {
 export function isLoadingConfigured() {
   return loadingConfigured
 }
+<<<<<<< HEAD
 
 // --------------------------------------------------
 // AUTO HIDE ON LOAD & FALLBACK
@@ -110,3 +133,5 @@ if (typeof window !== 'undefined') {
     }
   }, 8000)
 }
+=======
+>>>>>>> 96ab0f684d8df819070d489b6be605eae48a28f3

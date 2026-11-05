@@ -1,0 +1,83 @@
+:root {
+  --track-bg: #000;
+  --thumb-bg: #fff;
+  --color-theme: #000000;
+  --box-shadow: none;
+}
+
+html[data-theme='dark'] {
+  --track-bg: #fff;
+  --thumb-bg: #000;
+  --color-theme: #fff;
+  --box-shadow: none;
+}
+
+.button-theme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0 auto;
+}
+
+.toggle_track {
+  width: 55px;
+  height: 34px;
+  background: var(--track-bg);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  transition: background 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--box-shadow);
+}
+
+.toggle_thumb {
+  width: 30px;
+  height: 30px;
+  background: var(--thumb-bg);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+html[data-theme='dark'] .toggle_thumb {
+  transform: translateX(20px);
+}
+
+.button-theme my-icon {
+  position: absolute;
+  width: 1.8rem;
+  height: 1.8rem;
+  fill: currentColor;
+  transition:
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html[data-theme='light'] [data-icon='moon'] {
+  opacity: 0;
+  transform: scale(0.6) rotate(45deg);
+}
+
+html[data-theme='dark'] [data-icon='sun'] {
+  opacity: 0;
+  transform: scale(0.6) rotate(-45deg);
+}
+
+[data-icon='sun'] {
+  color: var(--color-theme);
+}
+
+[data-icon='moon'] {
+  color: var(--color-theme);
+}

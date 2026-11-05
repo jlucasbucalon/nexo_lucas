@@ -1,0 +1,28 @@
+<style>
+  :root {
+    --imageHero-size: 200px;
+    --boxHero-margin: 0 0 0 0;
+  }
+
+  .hero_box {
+    display: flex;
+    justify-content: center;
+    margin: var(--boxHero-margin);
+
+    img {
+      min-width: var(--imageHero-size);
+    }
+  }
+</style>
+
+<html>
+  <section class="hero_box">
+    <img
+      data-image="{{imageHero}}"
+      alt="Foto do perfil hero"
+      loading="eager"
+      fetchpriority="high"
+      decoding="auto"
+    />
+  </section>
+</html>
