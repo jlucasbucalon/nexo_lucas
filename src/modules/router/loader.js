@@ -16,6 +16,7 @@ export async function loadPage(pagePath, root) {
 
     await applyFade(root, async () => {
       root.innerHTML = html
+      reexecuteScripts(root)
 
       document.dispatchEvent(
         new CustomEvent('spa:pageLoaded', {
@@ -24,16 +25,7 @@ export async function loadPage(pagePath, root) {
           },
         })
       )
-      reexecuteScripts(root)
     })
-
-    document.dispatchEvent(
-      new CustomEvent('spa:pageLoaded', {
-        detail: {
-          page: pagePath,
-        },
-      })
-    )
   } catch (err) {
     console.error(err)
     root.innerHTML = '<p>Erro ao carregar página</p>'

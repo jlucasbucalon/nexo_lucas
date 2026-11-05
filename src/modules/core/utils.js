@@ -14,24 +14,6 @@ let linkMap = {}
 let iconMap = {}
 
 // --------------------------------------------------
-// SETUP DOS MAPAS
-// --------------------------------------------------
-
-export function setAssetMaps(maps = {}) {
-  imageMap = maps.imageMap || {}
-  linkMap = maps.linkMap || {}
-  iconMap = maps.iconMap || {}
-
-  if (!isDOM) return
-
-  document
-    .querySelectorAll('my-icon[data-icon]')
-    .forEach((icon) => {
-      if (typeof icon.render === 'function') icon.render()
-    })
-}
-
-// --------------------------------------------------
 // HELPERS
 // --------------------------------------------------
 
@@ -52,6 +34,20 @@ function debounce(fn, delay = 150) {
 }
 
 // --------------------------------------------------
+// SETUP DOS MAPAS
+// --------------------------------------------------
+
+export function setAssetMaps(maps = {}) {
+  imageMap = maps.imageMap || {}
+  linkMap = maps.linkMap || {}
+  iconMap = maps.iconMap || {}
+
+  if (!isDOM) return
+
+  applyAssets(document)
+}
+
+// --------------------------------------------------
 // IMAGES
 // --------------------------------------------------
 
@@ -60,7 +56,6 @@ function resolveImage(cfg) {
 
   const theme = getTheme()
   const width = getWidth()
-
   const isDark = theme === 'dark'
 
   if (cfg.set) {
@@ -132,6 +127,45 @@ function applyLinks(root = document) {
 }
 
 // --------------------------------------------------
+// ICON RESOLVER (MASK vs COLOR)
+// --------------------------------------------------
+
+function resolveIconSource(iconName) {
+  if (!iconName) return null
+
+  const cfg = iconMap[iconName]
+  if (!cfg) return null
+
+  // 1. Compatibilidade com String simples (padrão: MASK)
+  if (typeof cfg === 'string') {
+    return {
+      src: cfg,
+      mode: 'mask',
+    }
+  }
+
+  // 2. Configuração via Objeto
+  if (typeof cfg === 'object') {
+    let src = cfg.src || cfg.url || ''
+
+    // Tratamento caso o objeto tenha variação por tema (light / dark)
+    if (typeof src === 'object') {
+      const theme = getTheme()
+      src = theme === 'dark' ? src.dark : src.light
+    }
+
+    if (!src) return null
+
+    return {
+      src,
+      mode: cfg.mode === 'color' ? 'color' : 'mask',
+    }
+  }
+
+  return null
+}
+
+// --------------------------------------------------
 // ICON SYSTEM (SSR SAFE CUSTOM ELEMENT)
 // --------------------------------------------------
 
@@ -143,14 +177,51 @@ if (isBrowser && typeof HTMLElement !== 'undefined') {
     }
 
     render() {
-      const cfg = iconMap[this.dataset.icon]
-      if (!cfg) return
+      const iconName = this.dataset.icon
+      if (!iconName) return
 
-      const src = typeof cfg === 'string' ? cfg : cfg.src
-      if (!src) return
+      const resolved = resolveIconSource(iconName)
+      if (!resolved) return
 
-      this.dataset.src = src
-      this.style.setProperty('--icon-url', `url("${src}")`)
+      // Limpa imagem interna anterior se existir
+      const existingImg = this.querySelector(
+        ':scope > img.nexo-icon'
+      )
+      if (existingImg) {
+        existingImg.remove()
+      }
+
+      if (resolved.mode === 'color') {
+        // MODO COLOR: Cria <img> interno para manter cores e gradientes
+        this.setAttribute('data-icon-mode', 'color')
+        this.style.setProperty('--icon-url', 'none')
+        this.style.setProperty('mask', 'none')
+        this.style.setProperty('-webkit-mask', 'none')
+        this.style.setProperty('background', 'transparent')
+
+        const img = document.createElement('img')
+        img.className = 'nexo-icon'
+        img.src = resolved.src
+        img.alt = this.getAttribute('aria-label') || ''
+        img.draggable = false
+        img.style.display = 'block'
+        img.style.width = '100%'
+        img.style.height = '100%'
+        img.style.objectFit = 'contain'
+        img.style.pointerEvents = 'none'
+
+        this.appendChild(img)
+      } else {
+        // MODO MASK: Utiliza máscara CSS para alteração de cor via CSS / currentColor
+        this.setAttribute('data-icon-mode', 'mask')
+        this.style.removeProperty('background')
+        this.style.removeProperty('mask')
+        this.style.removeProperty('-webkit-mask')
+        this.style.setProperty(
+          '--icon-url',
+          `url("${resolved.src}")`
+        )
+      }
     }
   }
 
@@ -208,10 +279,10 @@ function setupReactive() {
 
   window.addEventListener(
     'resize',
-    debounce(() => applyImages(), 200)
+    debounce(() => applyAssets(), 200)
   )
 
-  const themeObs = new MutationObserver(() => applyImages())
+  const themeObs = new MutationObserver(() => applyAssets())
 
   themeObs.observe(document.documentElement, {
     attributes: true,

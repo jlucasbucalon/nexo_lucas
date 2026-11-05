@@ -1,0 +1,139 @@
+{
+  "title": "Mapa do Maroto",
+
+  "appearance": {
+    "light": {
+      "--marauders-ink": "#1e1e1e",
+
+      "--marauders-line-opacity": "0.20",
+
+      "--marauders-architecture-opacity": "0.30",
+
+      "--marauders-detail-opacity": "0.34",
+
+      "--marauders-route-opacity": "0.52",
+
+      "--marauders-marker-opacity": "0.34",
+
+      "--marauders-footstep-opacity": "0.72",
+
+      "--marauders-particle-opacity": "0.13",
+
+      "--marauders-ribbon-opacity": "0.68",
+
+      "--marauders-ribbon-text-opacity": "0.86",
+
+      "--marauders-line-width": "0.72",
+
+      "--marauders-architecture-width": "0.82",
+
+      "--marauders-route-width": "0.95",
+
+      "--marauders-room-count": "34",
+
+      "--marauders-corridor-count": "18",
+
+      "--marauders-tower-count": "8",
+
+      "--marauders-stair-count": "12",
+
+      "--marauders-symbol-count": "36",
+
+      "--marauders-route-count": "7",
+
+      "--marauders-particle-count": "42",
+
+      "--marauders-footstep-count": "180",
+
+      "--marauders-speed": "0.00006",
+
+      "--marauders-pulse-speed": "0.001",
+
+      "--marauders-animation": "true",
+
+      "--marauders-footsteps": "true",
+
+      "--marauders-ribbons": "true"
+    },
+
+    "dark": {
+      "--marauders-ink": "#f4edd2",
+
+      "--marauders-line-opacity": "0.12",
+
+      "--marauders-architecture-opacity": "0.19",
+
+      "--marauders-detail-opacity": "0.23",
+
+      "--marauders-route-opacity": "0.34",
+
+      "--marauders-marker-opacity": "0.20",
+
+      "--marauders-footstep-opacity": "0.42",
+
+      "--marauders-particle-opacity": "0.08",
+
+      "--marauders-ribbon-opacity": "0.44",
+
+      "--marauders-ribbon-text-opacity": "0.62",
+
+      "--marauders-line-width": "0.72",
+
+      "--marauders-architecture-width": "0.82",
+
+      "--marauders-route-width": "0.95",
+
+      "--marauders-room-count": "34",
+
+      "--marauders-corridor-count": "18",
+
+      "--marauders-tower-count": "8",
+
+      "--marauders-stair-count": "12",
+
+      "--marauders-symbol-count": "36",
+
+      "--marauders-route-count": "7",
+
+      "--marauders-particle-count": "42",
+
+      "--marauders-footstep-count": "180",
+
+      "--marauders-speed": "0.00005",
+
+      "--marauders-pulse-speed": "0.0009",
+
+      "--marauders-animation": "true",
+
+      "--marauders-footsteps": "true",
+
+      "--marauders-ribbons": "true"
+    }
+  },
+
+  "features": {
+    "architecture": true,
+
+    "rooms": true,
+
+    "corridors": true,
+
+    "towers": true,
+
+    "stairs": true,
+
+    "cartographicSymbols": true,
+
+    "movingCharacters": true,
+
+    "footsteps": true,
+
+    "ribbons": true,
+
+    "particles": true,
+
+    "organicLines": true,
+
+    "animatedRoutes": true
+  }
+}

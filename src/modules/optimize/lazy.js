@@ -1,9 +1,33 @@
-import { createObserver } from './observer.js'
 import { loadJS } from './assets.js'
 
 const isBrowser = typeof window !== 'undefined'
-
 let observer = null
+
+function getObserver() {
+  if (!isBrowser || typeof IntersectionObserver === 'undefined') {
+    return null
+  }
+
+  if (!observer) {
+    observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+
+        const el = entry.target
+
+        if (el.dataset.lazy) {
+          import(el.dataset.lazy)
+            .then((m) => m.init?.(el))
+            .catch(() => {})
+        }
+
+        observer.unobserve(el)
+      }
+    }, { threshold: 0.1 })
+  }
+
+  return observer
+}
 
 // --------------------------------------------------
 // INIT LAZY LOAD
@@ -12,35 +36,12 @@ let observer = null
 export function initLazyLoad() {
   if (!isBrowser) return
 
-  if (!observer) {
-    observer = createObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue
-
-        const el = entry.target
-
-        for (const cls of el.classList) {
-          if (!cls.includes('-')) continue
-
-          const [category, name] = cls.split('-')
-
-          const base = `/${category}/${name}`
-
-          import(`./${base}/index.js`)
-            .then((m) => m.init?.(el))
-            .catch(() => {})
-        }
-
-        observer.unobserve(el)
-      }
-    })
-  }
-
-  if (!observer) return
+  const activeObserver = getObserver()
+  if (!activeObserver) return
 
   document
-    .querySelectorAll("[class*='-'], [data-lazy]")
-    .forEach((el) => observer.observe(el))
+    .querySelectorAll('[data-lazy]')
+    .forEach((el) => activeObserver.observe(el))
 }
 
 // --------------------------------------------------

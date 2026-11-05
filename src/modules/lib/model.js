@@ -4,59 +4,81 @@ const loadedJs = new Set()
 export async function loadModels(root = document, config) {
   const classSet = new Set()
 
-  root.querySelectorAll("[class*='-']").forEach((el) =>
+  // Coleta todas as classes contendo hífen
+  root.querySelectorAll("[class*='-']").forEach((el) => {
     el.classList.forEach((c) => {
       if (c.includes('-')) classSet.add(c)
     })
-  )
+  })
 
   const components = [...classSet]
 
-  // CSS
-  await Promise.all(
-    components.map(async (comp) => {
-      const [category, name] = comp.split('-')
-      if (!category || !name) return
+  // Função auxiliar para dividir apenas no primeiro hífen
+  const parseComponent = (comp) => {
+    const idx = comp.indexOf('-')
+    if (idx === -1) return null
+    const category = comp.slice(0, idx)
+    const name = comp.slice(idx + 1)
+    return category && name ? { category, name } : null
+  }
 
-      const cssPath = `${config.dirs.models}/${category}/${name}/styles.css`
-      if (loadedCss.has(cssPath)) return
+  // Carregamento de CSS
+  const cssPromises = components.map((comp) => {
+    const parsed = parseComponent(comp)
+    if (!parsed) return Promise.resolve()
 
+    const { category, name } = parsed
+    const cssPath = `${config.dirs.models}/${category}/${name}/styles.css`
+
+    if (loadedCss.has(cssPath)) return Promise.resolve()
+
+    return new Promise((resolve) => {
       const link = document.createElement('link')
       link.rel = 'stylesheet'
       link.href = cssPath
 
-      document.head.appendChild(link)
-      loadedCss.add(cssPath)
-    })
-  )
-
-  // JS
-  await Promise.all(
-    components.map(async (comp) => {
-      const [category, name] = comp.split('-')
-      if (!category || !name) return
-
-      const jsPath = `${config.dirs.models}/${category}/${name}/script.js`
-      if (loadedJs.has(jsPath)) {
-        window.Components?.[comp]?.init?.()
-        return
+      link.onload = () => {
+        loadedCss.add(cssPath)
+        resolve()
       }
 
-      await new Promise((resolve) => {
-        const script = document.createElement('script')
-        script.src = jsPath
-        script.defer = true
+      // Resolve mesmo se der erro para não travar o Promise.all
+      link.onerror = () => resolve()
 
-        script.onload = () => {
-          window.Components?.[comp]?.init?.()
-          resolve()
-        }
-
-        script.onerror = resolve
-
-        document.body.appendChild(script)
-        loadedJs.add(jsPath)
-      })
+      document.head.appendChild(link)
     })
-  )
+  })
+
+  // Carregamento de JS
+  const jsPromises = components.map((comp) => {
+    const parsed = parseComponent(comp)
+    if (!parsed) return Promise.resolve()
+
+    const { category, name } = parsed
+    const jsPath = `${config.dirs.models}/${category}/${name}/script.js`
+
+    if (loadedJs.has(jsPath)) {
+      window.Components?.[comp]?.init?.()
+      return Promise.resolve()
+    }
+
+    return new Promise((resolve) => {
+      const script = document.createElement('script')
+      script.src = jsPath
+      script.defer = true
+
+      script.onload = () => {
+        loadedJs.add(jsPath)
+        window.Components?.[comp]?.init?.()
+        resolve()
+      }
+
+      script.onerror = () => resolve()
+
+      document.body.appendChild(script)
+    })
+  })
+
+  // Aguarda tanto os CSSs quanto os JSs serem baixados
+  await Promise.all([...cssPromises, ...jsPromises])
 }

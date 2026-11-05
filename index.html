@@ -2,74 +2,112 @@
 <html lang="pt-br" data-theme="light">
   <head>
     <title>Persona_Nexo</title>
+
     <meta charset="UTF-8" />
+
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
-    <link rel="preload" href="./css/var.css" as="style" />
-    <link rel="stylesheet" href="./css/var.css" />
-    <link rel="stylesheet" href="./css/styles.css" />
 
-    <link
-      rel="preload"
-      href="./css/global.css"
-      as="style"
-    />
+    <!-- ==================================================
+         CSS
+         ================================================== -->
+
     <link rel="stylesheet" href="./css/global.css" />
 
-    <link
-      rel="preload"
-      href="./css/custom.css"
-      as="style"
-    />
+    <link rel="stylesheet" href="./css/styles.css" />
+
     <link rel="stylesheet" href="./css/custom.css" />
-    <noscript>
-      <link rel="stylesheet" href="./css/global.css" />
-      <link rel="stylesheet" href="./css/styles.css" />
-      <link rel="stylesheet" href="./css/custom.css" />
-    </noscript>
+
+    <!-- ==================================================
+         SEO
+         ================================================== -->
+
     <meta
       name="description"
       content="Portfolio e projeto Persona_Nexo — perfil de Lucas Bucalon."
     />
+
     <meta
       property="og:description"
       content="Portfolio e projeto Persona_Nexo — perfil de Lucas Bucalon."
     />
+
     <meta name="robots" content="index, follow" />
+
     <meta
       name="referrer"
       content="no-referrer-when-downgrade"
     />
+
     <meta property="og:type" content="website" />
+
     <meta property="og:title" content="Persona_Nexo" />
+
     <meta
       name="twitter:card"
       content="summary_large_image"
     />
+
     <meta name="theme-color" content="#ffffff" />
   </head>
+
   <body>
+    <!-- ==================================================
+         HEADER
+         ================================================== -->
+
     <header id="header" data-component="Profile"></header>
+
+    <!-- ==================================================
+         NAVIGATION
+         ================================================== -->
 
     <nav data-component="NavBar"></nav>
 
     <hr />
 
+    <!-- ==================================================
+         SPA CONTENT
+         ================================================== -->
+
     <main id="children"></main>
 
     <hr />
 
+    <!-- ==================================================
+         FOOTER
+         ================================================== -->
+
     <footer data-component="Footer" id="footer"></footer>
 
+    <!-- ==================================================
+         BACKGROUND
+         ================================================== -->
+
     <div class="background-particles"></div>
+
+    <!-- ==================================================
+         NEXO LOADING
+         ================================================== -->
+
+    <div
+      id="nexo-loading"
+      class="nexo-loading is-hidden"
+      aria-hidden="true"
+    >
+      <div data-component="spinner"></div>
+    </div>
+
+    <!-- ==================================================
+         APPLICATION
+         ================================================== -->
 
     <script
       type="module"
       src="./src/main.js"
       defer
     ></script>
-    <script type="module" src="./client.js" defer></script>
   </body>
 </html>

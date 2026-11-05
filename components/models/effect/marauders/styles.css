@@ -1,0 +1,324 @@
+/* ==================================================
+   NEXO USER
+   MARAUDERS MAP
+   EFFECT & GLOBAL STYLES
+   ================================================== */
+
+/* ==================================================
+   CONFIGURATION
+   ================================================== */
+
+:root {
+  --marauders-ink: #000000;
+
+  --marauders-line-opacity: 0.18;
+
+  --marauders-architecture-opacity: 0.35;
+
+  --marauders-detail-opacity: 0.45;
+
+  --marauders-route-opacity: 0.25;
+
+  --marauders-marker-opacity: 0.34;
+
+  --marauders-footstep-opacity: 0.75;
+
+  --marauders-particle-opacity: 0.15;
+
+  --marauders-ribbon-opacity: 1;
+
+  --marauders-ribbon-text-opacity: 1;
+
+  --marauders-line-width: 0.72;
+
+  --marauders-architecture-width: 0.82;
+
+  --marauders-route-width: 0.95;
+
+  --marauders-room-count: 34;
+
+  --marauders-corridor-count: 18;
+
+  --marauders-tower-count: 8;
+
+  --marauders-stair-count: 12;
+
+  --marauders-symbol-count: 36;
+
+  --marauders-route-count: 7;
+
+  --marauders-particle-count: 60;
+
+  --marauders-footstep-count: 100;
+
+  --marauders-speed: 0.00002;
+
+  --marauders-pulse-speed: 0.0001;
+
+  --marauders-animation: true;
+
+  --marauders-footsteps: true;
+
+  --marauders-ribbons: true;
+}
+
+/* ==================================================
+   DARK THEME
+   ================================================== */
+
+html[data-theme='dark'] {
+  --marauders-ink: #ffffff;
+}
+
+/* ==================================================
+   COMPONENT
+   ================================================== */
+
+.effect-marauders {
+  position: fixed;
+
+  inset: 0;
+
+  width: 100vw;
+
+  height: 100vh;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  z-index: -1;
+
+  isolation: isolate;
+
+  background: transparent;
+}
+
+/* ==================================================
+   CANVAS
+   ================================================== */
+
+.effect-marauders .marauders-map__canvas {
+  position: absolute;
+
+  inset: 0;
+
+  display: block;
+
+  width: 100%;
+
+  height: 100%;
+
+  pointer-events: none;
+
+  background: transparent;
+
+  z-index: -1;
+}
+
+/* ==================================================
+   RIBBON LAYER
+   ================================================== */
+
+.effect-marauders .marauders-map__ribbons {
+  position: absolute;
+
+  inset: 0;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  z-index: -1;
+}
+
+/* ==================================================
+   RIBBON
+   ================================================== */
+
+.effect-marauders .marauders-map__ribbon {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 520px;
+
+  height: 44px;
+
+  margin-left: -260px;
+
+  margin-top: -22px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  opacity: 0;
+
+  color: var(--marauders-ink);
+
+  transform-origin: center center;
+
+  will-change: transform, opacity;
+
+  white-space: nowrap;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: 10px;
+
+  font-style: italic;
+
+  letter-spacing: 0.08em;
+
+  text-transform: none;
+}
+
+/* ==================================================
+   RIBBON INNER
+   ================================================== */
+
+.effect-marauders .marauders-map__ribbon-inner {
+  position: relative;
+
+  width: 100%;
+
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 18px;
+
+  padding: 0 22px;
+
+  opacity: var(--marauders-ribbon-opacity);
+
+  border-top: 1px solid
+    color-mix(
+      in srgb,
+      var(--marauders-ink) 24%,
+      transparent
+    );
+
+  border-bottom: 1px solid
+    color-mix(
+      in srgb,
+      var(--marauders-ink) 24%,
+      transparent
+    );
+
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--marauders-ink) 2%, transparent)
+      15%,
+    color-mix(in srgb, var(--marauders-ink) 5%, transparent)
+      50%,
+    color-mix(in srgb, var(--marauders-ink) 2%, transparent)
+      85%,
+    transparent 100%
+  );
+}
+
+/* ==================================================
+   RIBBON NAME
+   ================================================== */
+
+.effect-marauders .marauders-map__ribbon-name {
+  position: relative;
+
+  z-index: -1;
+
+  color: var(--marauders-ink);
+
+  opacity: var(--marauders-ribbon-text-opacity);
+
+  text-shadow: 0 0 1px
+    color-mix(
+      in srgb,
+      var(--marauders-ink) 18%,
+      transparent
+    );
+}
+
+/* ==================================================
+   RIBBON LINES
+   ================================================== */
+
+.effect-marauders .marauders-map__ribbon-line {
+  width: 75px;
+
+  height: 1px;
+
+  flex: 0 0 auto;
+
+  opacity: 0.32;
+
+  background: var(--marauders-ink);
+}
+
+/* ==================================================
+   SMALL CARTOGRAPHIC TEXTURE
+   ================================================== */
+
+.effect-marauders .marauders-map__ribbon-inner::before {
+  content: '';
+
+  position: absolute;
+
+  inset: 9px 70px;
+
+  border-top: 1px dotted
+    color-mix(
+      in srgb,
+      var(--marauders-ink) 16%,
+      transparent
+    );
+
+  border-bottom: 1px dotted
+    color-mix(
+      in srgb,
+      var(--marauders-ink) 16%,
+      transparent
+    );
+
+  opacity: 0.55;
+}
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 700px) {
+  .effect-marauders .marauders-map__ribbon {
+    width: 380px;
+
+    margin-left: -190px;
+
+    font-size: 8px;
+
+    letter-spacing: 0.045em;
+  }
+
+  .effect-marauders .marauders-map__ribbon-line {
+    width: 42px;
+  }
+}
+
+/* ==================================================
+   REDUCED MOTION
+   ================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .effect-marauders .marauders-map__ribbon {
+    transition: none;
+  }
+}

@@ -38,6 +38,7 @@ export const iconMap = {
   },
   home: {
     src: '/constant/icons/home.svg',
+    // mode: 'color',
   },
   about: {
     src: '/constant/icons/about.svg',

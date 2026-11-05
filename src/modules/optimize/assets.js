@@ -10,55 +10,7 @@ const isDOM = isBrowser && typeof document !== 'undefined'
 // --------------------------------------------------
 
 import { config } from '../../main.js'
-
-// --------------------------------------------------
-// IGNORED ERRORS
-// --------------------------------------------------
-
-const IGNORED_ERRORS = [
-  'A listener indicated an asynchronous response',
-  'chrome-extension',
-]
-
-function shouldIgnore(msg) {
-  if (!msg) return false
-  const text = String(msg)
-  return IGNORED_ERRORS.some((p) => text.includes(p))
-}
-
-// --------------------------------------------------
-// ERROR HANDLER (NO SIDE EFFECT AT IMPORT TIME)
-// --------------------------------------------------
-
-function ignoreError(event) {
-  const msg =
-    event.message ||
-    event.reason?.message ||
-    event.reason ||
-    ''
-
-  if (shouldIgnore(msg)) {
-    try {
-      event.preventDefault?.()
-      event.stopImmediatePropagation?.()
-    } catch {}
-  }
-}
-
-// --------------------------------------------------
-// REGISTER GLOBAL HANDLERS (ONLY CLIENT)
-// --------------------------------------------------
-
-function setupErrorHandlers() {
-  if (!isBrowser) return
-
-  window.addEventListener('error', ignoreError, true)
-  window.addEventListener(
-    'unhandledrejection',
-    ignoreError,
-    true
-  )
-}
+import { shouldIgnore } from './errorFilter.js'
 
 // --------------------------------------------------
 // ASSET TRACKING
@@ -242,7 +194,6 @@ function setupAutoInit() {
 export function initOptimizer() {
   if (!isBrowser) return
 
-  setupErrorHandlers()
   setupLazyObserver()
   setupAutoInit()
 }

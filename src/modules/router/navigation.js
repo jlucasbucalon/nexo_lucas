@@ -1,11 +1,25 @@
+// --------------------------------------------------
+// NAVIGATION HANDLER
+// --------------------------------------------------
+
 export function handleNavigation(resolveRoute) {
+  // --------------------------------------------------
+  // SMOOTH SCROLL
+  // --------------------------------------------------
+
   function smoothScrollTo(target, duration = 800) {
     const start = window.scrollY
+
     const targetPosition =
       target.getBoundingClientRect().top + window.scrollY
 
     const distance = targetPosition - start
+
     let startTime = null
+
+    // --------------------------------------------------
+    // ANIMATION
+    // --------------------------------------------------
 
     function animation(currentTime) {
       if (startTime === null) {
@@ -13,9 +27,13 @@ export function handleNavigation(resolveRoute) {
       }
 
       const elapsed = currentTime - startTime
+
       const progress = Math.min(elapsed / duration, 1)
 
-      // Ease-in-out
+      // --------------------------------------------------
+      // EASE IN OUT
+      // --------------------------------------------------
+
       const easing =
         progress < 0.5
           ? 2 * progress * progress
@@ -31,41 +49,67 @@ export function handleNavigation(resolveRoute) {
     requestAnimationFrame(animation)
   }
 
+  // --------------------------------------------------
+  // CLICK HANDLER
+  // --------------------------------------------------
+
   document.addEventListener('click', (event) => {
+    // --------------------------------------------------
+    // FIND LINK
+    // --------------------------------------------------
+
     const link = event.target.closest('a')
 
-    if (!link) return
+    if (!link) {
+      return
+    }
+
+    // --------------------------------------------------
+    // HREF
+    // --------------------------------------------------
 
     const href = link.getAttribute('href')
 
-    if (!href) return
+    if (!href) {
+      return
+    }
 
-    // =========================
-    // NAVEGAÇÃO SPA
-    // =========================
+    // ==================================================
+    // SPA NAVIGATION
+    // ==================================================
 
     if (link.hasAttribute('page')) {
       event.preventDefault()
 
+      // --------------------------------------------------
+      // NEW ROUTE
+      // --------------------------------------------------
+
       if (window.location.hash !== href) {
         window.location.hash = href
       } else {
+        // --------------------------------------------------
+        // SAME ROUTE
+        // --------------------------------------------------
+
         resolveRoute()
       }
 
       return
     }
 
-    // =========================
-    // SCROLL INTERNO
-    // =========================
+    // ==================================================
+    // INTERNAL SCROLL
+    // ==================================================
 
     if (link.hasAttribute('move')) {
       event.preventDefault()
 
       const target = document.querySelector(href)
 
-      if (!target) return
+      if (!target) {
+        return
+      }
 
       const duration = Number(link.dataset.duration) || 800
 
